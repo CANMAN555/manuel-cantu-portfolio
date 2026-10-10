@@ -285,3 +285,19 @@ h1 { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(
   html { scroll-behavior: auto; }
   .cell.turning { animation: none; }
 }
+
+/* ---------- MC logo (matches the resume) ---------- */
+.board-xl::before { content: none; }
+.arch-logo {
+  position: absolute; top: clamp(14px, 2.4vw, 28px); left: 50%; transform: translateX(-50%);
+  width: clamp(58px, 8vw, 92px); height: auto; aspect-ratio: 1;
+  border-radius: 50% 50% 3px 3px / 40% 40% 3px 3px; border: 1px solid var(--taupe);
+  box-shadow: 0 8px 18px -10px rgba(90, 64, 40, .5);
+}
+.board.board-xl { padding-top: clamp(96px, 13vw, 150px); }
+.monogram { width: 40px; height: 46px; padding: 0; border: 1px solid var(--taupe); overflow: hidden; display: block; }
+.monogram img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 640px) {
+  .board.board-xl { padding-top: 92px; border-radius: 50% 50% 4px 4px / 80px 80px 4px 4px; }
+  .arch-logo { top: 16px; width: 64px; }
+}
