@@ -1,0 +1,45 @@
+<section class="plain" id="contact">
+  <div class="wrap">
+    <div class="ticket">
+      <svg class="stamp" viewBox="0 0 200 200" aria-hidden="true">
+        <defs><path id="ring" d="M100,100 m-72,0 a72,72 0 1,1 144,0 a72,72 0 1,1 -144,0"/></defs>
+        <circle cx="100" cy="100" r="94"/><circle cx="100" cy="100" r="56"/>
+        <text><textPath href="#ring" startOffset="0" textLength="446" lengthAdjust="spacing">PLAN · COORDINATE · DELIVER · ON TIME ·</textPath></text>
+        <text class="mono-m" x="100" y="94" text-anchor="middle">M</text>
+        <line x1="78" y1="104" x2="122" y2="104"/>
+        <text class="mono-m" x="100" y="138" text-anchor="middle">C</text>
+      </svg>
+      <div class="ticket-text">
+        <h2>Ready when you are</h2>
+        <ul class="contact-list">
+          <li><a href="mailto:manuelcantu55@yahoo.com">manuelcantu55@yahoo.com</a></li>
+          <li><a href="tel:+14025147866">402-514-7866</a></li>
+          <li><a href="https://github.com/CANMAN555">github.com/CANMAN555</a></li>
+        </ul>
+      </div>
+      <div class="ticket-actions">
+        <a class="btn solid big" href="mailto:manuelcantu55@yahoo.com">Get in touch</a>
+        <a class="btn line dark-line" href="assets/Manuel_Cantu_Resume.pdf" download="Manuel_Cantu_Resume.pdf">Download resume (PDF)</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="message">
+  <div class="wrap message">
+    <div>
+      <h2 class="small-title">Send a message</h2>
+      <p class="muted">Fill this out and your email app will open with the message ready to send.</p>
+    </div>
+    <form id="contact-form" class="form" novalidate>
+      <label for="cf-name">Your name</label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required>
+      <label for="cf-company">Company (optional)</label>
+      <input id="cf-company" name="company" type="text" autocomplete="organization">
+      <label for="cf-message">Message</label>
+      <textarea id="cf-message" name="message" rows="5" required></textarea>
+      <p class="form-note" id="cf-note" role="status"></p>
+      <button class="btn solid" type="submit">Write the email</button>
+    </form>
+  </div>
+</section>
