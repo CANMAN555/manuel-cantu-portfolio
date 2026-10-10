@@ -17,32 +17,13 @@
 </head>
 <body>
 
-<a class="skip" href="#overview">Skip to content</a>
-
-<!-- Opening board -->
-<section class="arrival" id="top" aria-label="Introduction">
-  <div class="board board-xl">
-    <img class="arch-logo" src="assets/mc-logo.png" alt="MC logo" width="308" height="242">
-    <div class="board-face" data-cols="26" data-narrow-cols="18">
-      <div class="flap-row" data-text="MANUEL CANTU">MANUEL CANTU</div>
-      <div class="flap-row big" data-text="PROFESSIONAL COORDINATOR" data-split="PROFESSIONAL|COORDINATOR">PROFESSIONAL COORDINATOR</div>
-      <div class="flap-row small" data-text="MY MISSION" data-tone="amber">My mission</div>
-      <div class="flap-row small" data-segs='[[7,"• PRIORITIZE","teal"]]'>Prioritize</div>
-      <div class="flap-row small" data-segs='[[7,"• ALIGN","teal"]]'>Align</div>
-      <div class="flap-row small" data-segs='[[7,"• CREATE","teal"]]'>Create</div>
-      <div class="flap-row small" data-segs='[[7,"• DISPATCH","teal"]]'>Dispatch</div>
-      <div class="flap-row small" data-segs='[[7,"• CLOSE THE LOOP","teal"]]'>Close the loop</div>
-    </div>
-    <a class="plate" href="#overview">Enter</a>
-  </div>
-</section>
+<a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
   <div class="wrap nav-inner">
-    <a class="monogram" href="#top" aria-label="Back to top"><img src="assets/mc-logo.png" alt="" width="308" height="242"></a>
+    <a class="brand" href="#top" aria-label="Manuel Cantu, back to top"><img src="assets/mc-logo.png" alt="" width="308" height="242"><span>Manuel Cantu</span></a>
     <nav aria-label="Main">
-      <a href="#overview">Overview</a>
-      <a href="#method">Method</a>
+      <a href="#mission">Mission</a>
       <a href="#experience">Experience</a>
       <a href="#build">Projects</a>
       <a href="#contact">Contact</a>
@@ -50,36 +31,51 @@
   </div>
 </header>
 
-<main>
+<main id="main">
 
-<!-- Overview -->
-<section class="band overview" id="overview">
-  <div class="wrap overview-grid">
-    <div class="intro">
-      <h1>Every repair.<br>Back on the road.</h1>
+<!-- Home -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="hero-text">
       <p class="kicker">Professional Coordinator</p>
-      <p class="mono-line">Fleet Maintenance &amp; Operations · Technology Driven · Detroit Certified Technician</p>
-      <p class="lede">I turn a breakdown into a plan, and a plan into a truck back on the road. I coordinate fleet repairs today, I ran a service department before that, and I spent years as a factory-certified diesel mechanic.</p>
+      <h1>Manuel Cantu</h1>
+      <p class="tagline">Every repair, back on the road.</p>
+      <p class="lede">I coordinate truck and trailer repairs for a fleet. Before that I ran a service department, and before that I spent years as a factory-certified diesel mechanic. So I know the work I'm coordinating.</p>
       <div class="actions">
         <a class="btn solid" href="#contact">Work with me</a>
         <a class="btn line" href="assets/Manuel_Cantu_Resume.pdf" download="Manuel_Cantu_Resume.pdf">Download resume</a>
       </div>
+      <ol class="mission-line" aria-label="My mission">
+        <li>Prioritize</li><li>Align</li><li>Create</li><li>Dispatch</li><li>Close the loop</li>
+      </ol>
     </div>
-    <div class="board" aria-label="How I set priorities: 1, safety first. 2, downtime low. 3, costs in check.">
-      <div class="board-head" aria-hidden="true"><span>No.</span><span>Priority</span><span>Status</span></div>
-      <div class="board-face" data-cols="22">
-        <div class="flap-row" data-segs='[[0,"1"],[3,"SAFETY"],[13,"FIRST","amber"]]'>1 · Safety · First</div>
-        <div class="flap-row" data-segs='[[0,"2"],[3,"DOWNTIME"],[13,"LOW","teal"]]'>2 · Downtime · Low</div>
-        <div class="flap-row" data-segs='[[0,"3"],[3,"COSTS"],[13,"IN CHECK","amber"]]'>3 · Costs · In check</div>
-      </div>
+    <aside class="glance" aria-label="At a glance">
+      <img class="glance-logo" src="assets/mc-logo.png" alt="MC logo" width="308" height="242">
+      <h2>At a glance</h2>
+      <dl>
+        <div><dt>Now</dt><dd>Fleet Repair Coordinator, H&amp;M Trucking</dd></div>
+        <div><dt>Before</dt><dd>Service Manager, led 12 technicians</dd></div>
+        <div><dt>Trained as</dt><dd>Diesel technician, DTNA factory certified</dd></div>
+        <div><dt>Built</dt><dd>OpenRoad Service Map, 3,600+ truck shops</dd></div>
+        <div><dt>Based in</dt><dd>Papillion, NE · open to relocation</dd></div>
+        <div><dt>Speaks</dt><dd>English and Spanish</dd></div>
+      </dl>
+    </aside>
+  </div>
+  <div class="wrap">
+    <div class="results" aria-label="Results">
+      <div class="tile"><b>12</b><p>Technicians led</p></div>
+      <div class="tile"><b>~200</b><p>Trucks kept on schedule</p></div>
+      <div class="tile"><b>135</b><p>Snow units calibrated in 2 months</p></div>
+      <div class="tile"><b>3,600+</b><p>Truck shops on my website</p></div>
     </div>
   </div>
 </section>
 
-<!-- Method -->
-<section class="plain" id="method">
+<section class="plain" id="mission">
   <div class="wrap">
-    <h2 class="rule">The Method</h2>
+    <h2 class="rule">My Mission</h2>
+    <p class="section-lede">Five steps I follow on every job, from the first call to the final invoice.</p>
     <ol class="method">
       <li>
         <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="8" width="28" height="34" rx="2"/><rect x="18" y="5" width="12" height="6" rx="1.5"/><path d="M15 19l2.5 2.5L22 17M15 28l2.5 2.5L22 26M15 37l2.5 2.5L22 35M26 20h8M26 29h8M26 38h8"/></svg>
@@ -122,19 +118,6 @@
         </div>
       </li>
     </ol>
-  </div>
-</section>
-
-<!-- Results -->
-<section class="band" id="results">
-  <div class="wrap">
-    <h2 class="rule">Results</h2>
-    <div class="results">
-      <div class="tile"><div class="digits" data-digits="12">12</div><p>Technicians led</p></div>
-      <div class="tile"><div class="digits" data-digits="~200">~200</div><p>Trucks kept on schedule</p></div>
-      <div class="tile"><div class="digits" data-digits="135">135</div><p>Snow units calibrated in 2 months</p></div>
-      <div class="tile"><div class="digits" data-digits="3,600+">3,600+</div><p>Truck shops on my website</p></div>
-    </div>
   </div>
 </section>
 
@@ -344,6 +327,5 @@
 
 </main>
 
-<script src="board.js" defer></script>
 </body>
 </html>
