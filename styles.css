@@ -1,7 +1,6 @@
 @font-face { font-family: "Cormorant Garamond"; font-style: italic; font-weight: 500; font-display: swap; src: url("assets/fonts/cormorant-500i.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "Cormorant Garamond"; font-style: normal; font-weight: 500; font-display: swap; src: url("assets/fonts/cormorant-500.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "Cormorant Garamond"; font-style: normal; font-weight: 600; font-display: swap; src: url("assets/fonts/cormorant-500.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: "Cinzel"; font-style: normal; font-weight: 400 700; font-display: swap; src: url("assets/fonts/cinzel-400-700.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "Jost"; font-style: normal; font-weight: 300 600; font-display: swap; src: url("assets/fonts/jost-300-600.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 /* Whitewashed stone with burnt-orange and terracotta accents; classical serif display, inscription caps, clean sans body. */
 :root {
@@ -17,7 +16,7 @@
   --ink-soft: #6c5d52;
   --line: #d8cdc2;
   --display: "Cormorant Garamond", "Garamond", "Times New Roman", serif;
-  --caps: "Cinzel", "Trajan Pro", "Times New Roman", serif;
+  --caps: "Jost", "Futura", "Century Gothic", "Segoe UI", sans-serif;
   --sans: "Jost", "Futura", "Century Gothic", "Segoe UI", sans-serif;
 }
 
@@ -83,7 +82,7 @@ h1, h2, h3 { text-wrap: balance; }
 }
 .board-xl::after {
   content: ""; position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
-  width: min(70%, 520px); height: 20px; background: url("assets/meander.svg") repeat-x center / auto 14px; opacity: .9;
+  width: min(70%, 520px); height: 20px;
 }
 .plate {
   position: absolute; left: 50%; bottom: -24px; transform: translateX(-50%); z-index: 2;
@@ -111,7 +110,7 @@ h2.rule {
   display: flex; align-items: center; gap: 28px; margin: 0 0 56px;
   font-family: var(--caps); font-weight: 500; font-size: clamp(24px, 3.2vw, 36px); letter-spacing: .14em; text-transform: uppercase; line-height: 1.15; color: var(--ink);
 }
-h2.rule::before, h2.rule::after { content: ""; flex: 1; height: 14px; background: url("assets/meander.svg") repeat-x center / auto 14px; opacity: .8; }
+h2.rule::before, h2.rule::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 
 .btn {
   display: inline-block; padding: 14px 28px; font-family: var(--sans); font-size: 13px; font-weight: 500;
@@ -305,3 +304,15 @@ h1 { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(
 .monogram { width: 46px; height: auto; border: 0; border-radius: 0; overflow: visible; }
 .monogram img { height: auto; object-fit: contain; }
 @media (max-width: 640px) { .arch-logo { width: 72px; top: 18px; } }
+
+/* ---------- Plain, modern shapes (no Greek details) ---------- */
+.flap-row { font-weight: 500; }
+.board.board-xl { border-radius: 4px; padding-top: clamp(100px, 11vw, 132px); }
+.board-xl::after { content: none; }
+.board.board-xl { padding-bottom: 60px; }
+h2.rule { font-family: var(--display); font-weight: 500; text-transform: none; letter-spacing: .01em; font-size: clamp(32px, 4vw, 48px); }
+h2.rule::before, h2.rule::after { height: 1px; background: var(--line); opacity: 1; }
+.method li { border-radius: 2px; text-align: left; justify-items: start; padding: 28px 22px; }
+.track, .toolbox h3, .credentials h3, .kicker, .method h3 { font-weight: 500; }
+.digits { font-weight: 500; }
+@media (max-width: 640px) { .board.board-xl { border-radius: 4px; padding-top: 100px; } }
