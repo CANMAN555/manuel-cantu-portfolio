@@ -296,3 +296,9 @@ h1 { font-size: clamp(40px, 4.6vw, 66px); }
   .board.board-xl { padding: 12px 10px 56px; }
   .plate { padding: 10px 26px; }
 }
+.method { grid-template-columns: repeat(5, 1fr); gap: 18px; }
+.method li { padding: 24px 18px; }
+.method li + li::after { left: -19px; width: 18px; }
+@media (max-width: 1100px) { .method { grid-template-columns: repeat(3, 1fr); } .method li + li::after { display: none; } }
+@media (max-width: 760px) { .method { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .method { grid-template-columns: 1fr; } }

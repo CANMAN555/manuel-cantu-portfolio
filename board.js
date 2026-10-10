@@ -79,9 +79,8 @@
       face.querySelectorAll(".flap-row[data-segs]").forEach(function (row) {
         var segs = JSON.parse(row.dataset.segs);
         if (segs.length === 1) {
-          row.removeAttribute("data-segs");
-          row.dataset.text = segs[0][1];
-          row.dataset.tone = segs[0][2] || "";
+          segs[0][0] = Math.max(0, Math.min(2, cols - segs[0][1].length));
+          row.dataset.segs = JSON.stringify(segs);
         }
       });
     }
