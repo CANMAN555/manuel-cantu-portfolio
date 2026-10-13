@@ -43,7 +43,7 @@ h1, h2, h3 { text-wrap: balance; }
 /* ---------- Home ---------- */
 .hero {
   padding: clamp(56px, 8vw, 104px) 0 0;
-  background: url("assets/route-lines.svg") center top / cover no-repeat, var(--white);
+  background: url("assets/route-lines-hero.svg") center top / cover no-repeat, var(--white);
 }
 .hero-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(40px, 6vw, 88px); align-items: center; }
 .hero-grid > * { min-width: 0; }
