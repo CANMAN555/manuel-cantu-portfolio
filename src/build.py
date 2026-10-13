@@ -131,7 +131,7 @@ build("projects.html", "Projects · Manuel Cantu", DESC + " OpenRoad Service Map
 build("resume.html", "Resume · Manuel Cantu", DESC + " View or download the resume.",
       page_head("Resume", "My Resume", "Take a look below, or download the PDF to keep or print.")
       + piece("resume.html"))
-build("contact.html", "Contact · Manuel Cantu", DESC + " Email, phone and GitHub.",
+build("contact.html", "Contact · Manuel Cantu", DESC + " Email and GitHub.",
       page_head("Contact", "Get in Touch", "Have a team, a project or an operation that needs someone to keep it organized? Send me a note.")
       + piece("contact.html"),
       scripts='<script src="contact.js" defer></script>')
