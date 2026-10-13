@@ -120,7 +120,7 @@ build("index.html", "Manuel Cantu · Professional Coordinator",
       DESC + " Fleet repair coordinator, former service manager, factory-certified diesel technician, and project lead of the OpenRoad Service Map website.",
       piece("home.html"))
 build("about.html", "About · Manuel Cantu", DESC + " Profile, mission, skills, education and certifications.",
-      page_head("About", "About Me", "A fleet repair coordinator with a mechanic's background and a knack for technology.")
+      page_head("About", "About Me", "A coordinator with a wide range of skills, from leading people to building technology to hands-on mechanical work.")
       + piece("about.html"))
 build("experience.html", "Experience · Manuel Cantu", DESC + " Work history in fleet coordination, service management and diesel repair.",
       page_head("Experience", "Where I've Worked", "From diesel mechanic to service manager to fleet repair coordinator.")
@@ -132,6 +132,6 @@ build("resume.html", "Resume · Manuel Cantu", DESC + " View or download the res
       page_head("Resume", "My Resume", "Take a look below, or download the PDF to keep or print.")
       + piece("resume.html"))
 build("contact.html", "Contact · Manuel Cantu", DESC + " Email, phone and GitHub.",
-      page_head("Contact", "Get in Touch", "Have a fleet, a shop or a project that needs someone to keep it moving? Send me a note.")
+      page_head("Contact", "Get in Touch", "Have a team, a project or an operation that needs someone to keep it organized? Send me a note.")
       + piece("contact.html"),
       scripts='<script src="contact.js" defer></script>')
