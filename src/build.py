@@ -28,7 +28,7 @@ HEAD = """<!doctype html>
 <meta name="description" content="{description}">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{description}">
-<meta property="og:image" content="{site}assets/mc-logo.jpg">
+<meta property="og:image" content="{site}assets/manny-portrait-600.jpg">
 <meta name="theme-color" content="#f7f4ef">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
