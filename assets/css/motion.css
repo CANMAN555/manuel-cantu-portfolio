@@ -666,3 +666,59 @@ html.motion #experience { overflow-x: clip; }
   h2.rule.is-pulsing > .reveal-line, .field-error, .fx-form.is-sent .form-sent { animation: none !important; }
   .tl-fill, .shots.lift-card, .fx-form .field label, .fx-form .field-bar { transition: none !important; }
 }
+
+
+/* =====================================================================
+   OPTIONAL REFINEMENTS
+   Each block below stands on its own. To remove one, delete everything
+   between its START and END lines here, and the block with the same
+   name at the bottom of assets/js/motion.js (if it has one).
+   ===================================================================== */
+
+/* ---------- OPTIONAL 1: CUSTOM CURSOR (START) ----------
+   Desktop with a mouse only. A small terracotta dot with a thin ring that trails it.
+   The normal cursor stays visible; this sits on top of it. motion.js adds html.has-cursor. */
+.cursor-dot, .cursor-ring {
+  position: fixed; top: 0; left: 0; z-index: 120;
+  pointer-events: none; border-radius: 50%;
+  opacity: 0; transition: opacity .3s var(--motion-ease);
+}
+html.has-cursor.cursor-in .cursor-dot,
+html.has-cursor.cursor-in .cursor-ring { opacity: 1; }
+.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: var(--orange); }
+.cursor-ring { width: 34px; height: 34px; margin: -17px 0 0 -17px; border: 1px solid var(--orange); }
+.cursor-ring span {   /* the ring's own scale lives on an inner layer so it never fights the position */
+  position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+  border: 1px solid var(--orange); border-radius: 50%;
+  transition: transform .45s var(--motion-ease), opacity .45s var(--motion-ease);
+}
+.cursor-ring { border-color: transparent; }
+html.cursor-link .cursor-ring span { transform: scale(1.7); opacity: .6; }
+html.cursor-link .cursor-dot { opacity: 0 !important; }
+@media print { .cursor-dot, .cursor-ring { display: none !important; } }
+/* ---------- OPTIONAL 1: CUSTOM CURSOR (END) ---------- */
+
+/* ---------- OPTIONAL 2: FILM GRAIN (START) ----------
+   A very faint grain over the page (3.5% opacity), drawn from a tiny tiled SVG noise pattern
+   built into this file. No image download. It never takes clicks. */
+body::after {
+  content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 90;
+  pointer-events: none; opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.23 0 0 0 0 0.18 0 0 0 0 0.16 0 0 0 1.4 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+@media print { body::after { display: none; } }
+/* ---------- OPTIONAL 2: FILM GRAIN (END) ---------- */
+
+/* ---------- OPTIONAL 3: SMOOTH ANCHOR SCROLLING (START) ----------
+   Links to a spot on the page glide there and stop just below the header.
+   (The header code above already sets an offset; this block keeps it explicit
+   and motion.js moves keyboard focus to where you land.) */
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 16px); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+[id][tabindex="-1"]:focus { outline: none; }   /* the landing spot takes focus quietly */
+/* ---------- OPTIONAL 3: SMOOTH ANCHOR SCROLLING (END) ---------- */
+
+/* ---------- OPTIONAL 4: TEXT SELECTION COLOR (START) ---------- */
+::selection { background: var(--orange); color: var(--white); }
+/* ---------- OPTIONAL 4: TEXT SELECTION COLOR (END) ---------- */

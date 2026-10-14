@@ -859,3 +859,78 @@
     }, delay + time + 150);
   }
 })();
+
+
+// =====================================================================
+// OPTIONAL REFINEMENTS
+// Each block below stands on its own. To remove one, delete everything
+// between its START and END lines here, and the matching block at the
+// bottom of assets/css/motion.css.
+// =====================================================================
+
+// ---------- OPTIONAL 1: CUSTOM CURSOR (START) ----------
+// Desktop with a mouse only, never with reduced motion. The normal cursor stays visible.
+(function () {
+  var mq = window.matchMedia;
+  if (!mq || !mq("(hover: hover) and (pointer: fine)").matches) return;
+  if (mq("(prefers-reduced-motion: reduce)").matches) return;
+  var root = document.documentElement;
+  var HOT = "a, button, summary, label, input, textarea, select, [role='button']";
+
+  function start() {
+    var dot = document.createElement("div");
+    var ring = document.createElement("div");
+    dot.className = "cursor-dot";
+    ring.className = "cursor-ring";
+    ring.appendChild(document.createElement("span"));
+    dot.setAttribute("aria-hidden", "true");
+    ring.setAttribute("aria-hidden", "true");
+    document.body.appendChild(dot);
+    document.body.appendChild(ring);
+    root.classList.add("has-cursor");
+
+    var x = -100, y = -100, rx = -100, ry = -100, running = false;
+    function loop() {
+      rx += (x - rx) * 0.18;          // the ring eases toward the dot
+      ry += (y - ry) * 0.18;
+      ring.style.transform = "translate3d(" + rx.toFixed(1) + "px," + ry.toFixed(1) + "px,0)";
+      if (Math.abs(x - rx) > 0.1 || Math.abs(y - ry) > 0.1) window.requestAnimationFrame(loop);
+      else running = false;
+    }
+    document.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "mouse") { root.classList.remove("cursor-in"); return; }   // touch or pen: stay out of the way
+      x = e.clientX; y = e.clientY;
+      dot.style.transform = "translate3d(" + x + "px," + y + "px,0)";
+      root.classList.add("cursor-in");
+      if (!running) { running = true; window.requestAnimationFrame(loop); }
+    }, { passive: true });
+    document.addEventListener("pointerover", function (e) {
+      root.classList.toggle("cursor-link", !!(e.target.closest && e.target.closest(HOT)));
+    }, { passive: true });
+    document.addEventListener("mouseleave", function () { root.classList.remove("cursor-in"); });
+    window.addEventListener("blur", function () { root.classList.remove("cursor-in"); });
+  }
+  if (document.readyState !== "loading") start();
+  else document.addEventListener("DOMContentLoaded", start);
+})();
+// ---------- OPTIONAL 1: CUSTOM CURSOR (END) ----------
+
+// ---------- OPTIONAL 3: SMOOTH ANCHOR SCROLLING (START) ----------
+// The glide and the header offset come from the CSS block. This adds one thing:
+// after a same-page link, keyboard focus moves to where you landed.
+(function () {
+  document.addEventListener("click", function (e) {
+    var link = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+    if (!link || e.defaultPrevented) return;
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    var target = id && document.getElementById(id);
+    if (!target) return;
+    window.setTimeout(function () {
+      if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    }, 0);
+  });
+})();
+// ---------- OPTIONAL 3: SMOOTH ANCHOR SCROLLING (END) ----------
+
+// (OPTIONAL 2 film grain and OPTIONAL 4 selection color are CSS only.)
