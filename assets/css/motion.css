@@ -12,7 +12,14 @@
      .pt-panel        leaving a page (browsers without View Transitions): a cream panel wipes up from the bottom
      html.pt-arrive   the next page: the same cover lifts off the top to reveal it
      @view-transition browsers that support it slide the new page up over the old one natively
-   The covers never take clicks or focus, and none of it runs with reduced motion. */
+   The covers never take clicks or focus, and none of it runs with reduced motion.
+
+   Header (after page transitions):
+     html.nav-js      motion.js is running: the header floats over the top of the page
+     .nav.is-scrolled past 40px: cream bar, soft shadow, hairline border, slightly smaller
+     .nav.is-hidden   scrolling down: the header slides away; scrolling up brings it back
+     html.menu-open   phone menu open: full-screen cream overlay, page locked behind it
+   Without JavaScript the header stays exactly as styles.css draws it. */
 
 :root {
   --motion-ease: cubic-bezier(.22, 1, .36, 1);
@@ -24,7 +31,11 @@
   --page-intro-time: .9s;
   --page-wipe-time: .6s;
   --page-lift-time: .7s;
+  --nav-h: 84px;             /* header height at the top of the page */
+  --nav-shrink: 14px;        /* how much shorter it gets once scrolled */
+  --nav-time: .6s;
 }
+@media (max-width: 760px) { :root { --nav-h: 64px; --nav-shrink: 8px; } }
 
 /* ---------- Scroll progress ---------- */
 .scroll-progress {
@@ -139,9 +150,118 @@ html.pt-arrive::after {
 @keyframes pt-vt-out { to { transform: translate3d(0, -8%, 0); } }
 @keyframes pt-vt-in { from { transform: translate3d(0, 100%, 0); } }
 
+/* ---------- Header ---------- */
+html.nav-js { scroll-padding-top: calc(var(--nav-h) + 8px); }
+html.nav-js .nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 30;
+  background: transparent; border-bottom-color: transparent;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  transition: transform var(--nav-time) var(--motion-ease);
+}
+/* The cream bar, its shadow and its hairline fade in as layers, so only opacity animates. */
+html.nav-js .nav::before,
+html.nav-js .nav::after {
+  content: ""; position: absolute; left: 0; right: 0; z-index: -1;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--nav-time) var(--motion-ease);
+}
+html.nav-js .nav::before { top: 0; bottom: 0; background: var(--white); box-shadow: 0 10px 30px -18px rgba(58, 47, 40, .35); }
+html.nav-js .nav::after { bottom: 0; height: 1px; background: var(--line); }
+html.nav-js .nav.is-scrolled::before,
+html.nav-js .nav.is-scrolled::after,
+html.menu-open .nav::before,
+html.menu-open .nav::after { opacity: 1; }
+
+html.nav-js .nav-inner { height: var(--nav-h); flex-wrap: nowrap; padding-top: 0; padding-bottom: 0; }
+/* The page's first band starts under the header, so the topo lines show through at the top. */
+html.nav-js main > :first-child { border-top: var(--nav-h) solid transparent; background-origin: border-box; }
+
+/* Scrolled: the bar rises by --nav-shrink and its contents drop by half that, so they stay centered. */
+html.nav-js .nav.is-scrolled { transform: translate3d(0, calc(var(--nav-shrink) * -1), 0); }
+html.nav-js .brand, html.nav-js .menu-btn, html.nav-js .tabs { transition: transform var(--nav-time) var(--motion-ease); }
+html.nav-js .nav.is-scrolled .brand,
+html.nav-js .nav.is-scrolled .menu-btn { transform: translate3d(0, calc(var(--nav-shrink) / 2), 0); }
+html.nav-js .brand img { transform-origin: 0 50%; transition: transform var(--nav-time) var(--motion-ease); }
+html.nav-js .nav.is-scrolled .brand img { transform: scale(.86); }
+html.nav-js .nav.is-hidden { transform: translate3d(0, calc(-100% - 24px), 0); }
+
+/* Nav links: a terracotta underline grows from the left, then retracts to the right. */
+.tabs a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px;
+  background: var(--orange);
+  transform: scaleX(0); transform-origin: 100% 50%;
+  transition: transform .5s var(--motion-ease);
+  pointer-events: none;
+}
+.tabs a:hover::after,
+.tabs a:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
+.tabs a[aria-current="page"]::after { transform: scaleX(1); }
+
+/* The menu button only exists when motion.js adds it, and only shows on phones. */
+.menu-btn { display: none; }
+#main[tabindex="-1"]:focus { outline: none; }
+
+@media (min-width: 901px) {
+  html.nav-js .nav.is-scrolled .tabs { transform: translate3d(0, calc(var(--nav-shrink) / 2), 0); }
+}
+
+@media (max-width: 900px) {
+  html.nav-js .brand span { display: inline; font-size: 20px; }
+  html.nav-js .menu-btn {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; margin-right: -10px; padding: 0;
+    background: none; border: 0; color: var(--ink); cursor: pointer;
+  }
+  .menu-btn span {
+    position: absolute; left: 11px; width: 22px; height: 1.5px; background: currentColor;
+    transition: transform var(--nav-time) var(--page-ease), opacity .3s var(--motion-ease);
+  }
+  .menu-btn span:nth-child(1) { transform: translate3d(0, -6px, 0); }
+  .menu-btn span:nth-child(3) { transform: translate3d(0, 6px, 0); }
+  html.menu-open .menu-btn span:nth-child(1) { transform: rotate(45deg); }
+  html.menu-open .menu-btn span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  html.menu-open .menu-btn span:nth-child(3) { transform: rotate(-45deg); }
+  html.nav-js .brand { position: relative; z-index: 1; }
+
+  /* The overlay: sits under the bar, fills the screen, links stacked in the middle. */
+  html.nav-js .nav .tabs {
+    position: fixed; top: 0; left: 0; z-index: 0;
+    width: 100%; height: 100vh; height: calc(100dvh + 24px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    padding: var(--nav-h) 24px 48px; overflow-y: auto;
+    background: var(--white);
+    visibility: hidden; opacity: 0;
+    transition: opacity .5s var(--motion-ease), visibility 0s linear .5s;
+  }
+  html.menu-open .nav .tabs { visibility: visible; opacity: 1; transition: opacity .5s var(--motion-ease), visibility 0s; }
+  html.nav-js .nav .tabs a {
+    font-family: var(--display); font-size: 34px; font-weight: 500; letter-spacing: .02em; text-transform: none;
+    color: var(--ink); padding: 4px 0;
+    opacity: 0; transform: translate3d(0, 18px, 0);
+    transition: opacity .3s var(--motion-ease), transform .3s var(--motion-ease);
+  }
+  html.nav-js .nav .tabs a[aria-current="page"] { color: var(--terra); }
+  html.nav-js .nav .tabs a::after { bottom: 2px; }
+  html.menu-open .nav .tabs a {
+    opacity: 1; transform: none;
+    transition: opacity .8s var(--motion-ease), transform .8s var(--motion-ease);
+    transition-delay: calc(120ms + var(--i, 0) * 70ms);
+  }
+  /* While open the bar holds still at full size, so the overlay can fill the screen. */
+  html.menu-open .nav,
+  html.menu-open .nav .brand,
+  html.menu-open .nav .menu-btn { transform: none; transition: none; }
+  html.menu-open .nav .brand img { transform: none; }
+  html.menu-open .nav::after { z-index: 1; }
+  html.menu-open, html.menu-open body { overflow: hidden; }
+}
+
 /* ---------- Printing and reduced motion: show everything, move nothing ---------- */
 @media print {
-  .scroll-progress, .pt-panel { display: none; }
+  .scroll-progress, .pt-panel, .menu-btn { display: none !important; }
+  html.nav-js .nav { position: static; transform: none; }
+  html.nav-js main > :first-child { border-top: 0; }
   html::before, html::after { display: none !important; }
   html.motion [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
 }
@@ -150,4 +270,6 @@ html.pt-arrive::after {
     opacity: 1 !important; transform: none !important; clip-path: none !important; transition: none !important;
   }
   html.pt-intro::before, html.pt-intro::after, html.pt-arrive::after, .pt-panel { display: none !important; }
+  html.nav-js .nav, html.nav-js .nav::before, html.nav-js .nav::after, html.nav-js .brand, html.nav-js .brand img,
+  html.nav-js .tabs, html.nav-js .nav .tabs a, .tabs a::after, .menu-btn span { transition: none !important; }
 }

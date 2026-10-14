@@ -1,4 +1,4 @@
-// Motion for the portfolio: page transitions, a scroll progress bar and reveal-on-scroll for anything marked data-reveal.
+// Motion for the portfolio: page transitions, the header, a scroll progress bar and reveal-on-scroll for anything marked data-reveal.
 // Loaded in <head> so the "motion" class lands before the page paints. If anything goes wrong,
 // the class comes off again and the page shows as plain, fully visible content.
 (function () {
@@ -16,6 +16,7 @@
   var startDelay = 0;        // reveals wait until a cover has mostly lifted
 
   if (animate) root.classList.add("motion");
+  root.classList.add("nav-js");   // the header upgrade runs with or without reduced motion
 
   // sessionStorage can be blocked (private modes, strict settings); then transitions simply don't play.
   function store(key, value) {
@@ -113,6 +114,11 @@
 
   ready(function () {
     try {
+      header();
+    } catch (err) {
+      root.classList.remove("nav-js", "menu-open");
+    }
+    try {
       progressBar();
       addLines();
       if (animate) {
@@ -123,6 +129,106 @@
       root.classList.remove("motion");
     }
   });
+
+  // ---------- Header: scroll states, hide on scroll down, phone menu, skip link ----------
+  function header() {
+    var nav = document.getElementById("nav");
+    var tabs = nav && nav.querySelector(".tabs");
+    if (!tabs) { root.classList.remove("nav-js"); return; }
+    var brand = nav.querySelector(".brand");
+    var links = tabs.querySelectorAll("a");
+    var phone = window.matchMedia("(max-width: 900px)");
+
+    // Skip to content: move keyboard focus into the page, not just the scroll position.
+    var skip = document.querySelector(".skip");
+    var main = document.getElementById("main");
+    if (skip && main) {
+      skip.addEventListener("click", function () {
+        if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+        window.setTimeout(function () { main.focus({ preventScroll: true }); }, 0);
+      });
+    }
+
+    // Scrolled look past 40px; hide going down, return going up.
+    var lastY = Math.max(0, window.scrollY);
+    var queued = false;
+    function update() {
+      queued = false;
+      var y = Math.max(0, window.scrollY);
+      nav.classList.toggle("is-scrolled", y > 40);
+      if (root.classList.contains("menu-open")) { lastY = y; return; }
+      var moved = y - lastY;
+      if (y < 120 || moved < -6) nav.classList.remove("is-hidden");
+      else if (moved > 6 && !nav.contains(document.activeElement)) nav.classList.add("is-hidden");
+      if (Math.abs(moved) > 6 || y < 120) lastY = y;
+    }
+    window.addEventListener("scroll", function () {
+      if (!queued) { queued = true; window.requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+    // A keyboard user tabbing back up to the header always finds it in view.
+    nav.addEventListener("focusin", function () { nav.classList.remove("is-hidden"); });
+
+    // Phone menu.
+    if (!tabs.id) tabs.id = "site-menu";
+    for (var i = 0; i < links.length; i++) links[i].style.setProperty("--i", i);
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "menu-btn";
+    btn.setAttribute("aria-controls", tabs.id);
+    btn.setAttribute("aria-expanded", "false");
+    btn.setAttribute("aria-label", "Open menu");
+    btn.innerHTML = '<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>';
+    nav.querySelector(".nav-inner").appendChild(btn);
+
+    var inerted = [];
+    function isOpen() { return root.classList.contains("menu-open"); }
+    function open() {
+      // Keep the page from shifting sideways when its scrollbar goes away.
+      var gap = window.innerWidth - root.clientWidth;
+      if (gap > 0) document.body.style.paddingRight = gap + "px";
+      root.classList.add("menu-open");
+      nav.classList.remove("is-hidden");
+      btn.setAttribute("aria-expanded", "true");
+      btn.setAttribute("aria-label", "Close menu");
+      // Everything outside the header is out of reach while the menu is open.
+      var kids = document.body.children;
+      for (var k = 0; k < kids.length; k++) {
+        var el = kids[k];
+        if (el !== nav && !el.inert && el.tagName !== "SCRIPT") { el.inert = true; inerted.push(el); }
+      }
+    }
+    function close(giveFocusBack) {
+      if (!isOpen()) return;
+      root.classList.remove("menu-open");
+      document.body.style.paddingRight = "";
+      btn.setAttribute("aria-expanded", "false");
+      btn.setAttribute("aria-label", "Open menu");
+      inerted.forEach(function (el) { el.inert = false; });
+      inerted = [];
+      if (giveFocusBack) btn.focus();
+    }
+    btn.addEventListener("click", function () { if (isOpen()) close(false); else open(); });
+    tabs.addEventListener("click", function (e) { if (e.target.closest("a")) close(false); });
+
+    // Escape closes. Tab and Shift+Tab loop through the logo, the links and the close button.
+    document.addEventListener("keydown", function (e) {
+      if (!isOpen()) return;
+      if (e.key === "Escape" || e.key === "Esc") { e.preventDefault(); close(true); return; }
+      if (e.key !== "Tab") return;
+      var stops = [brand].concat(Array.prototype.slice.call(links), [btn]).filter(Boolean);
+      var first = stops[0], last = stops[stops.length - 1];
+      var at = stops.indexOf(document.activeElement);
+      if (e.shiftKey && (at <= 0)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (at === -1 || at === stops.length - 1)) { e.preventDefault(); first.focus(); }
+    });
+
+    // Turning a phone sideways into a wide screen, or coming back with the back button, closes it.
+    var onWidth = function () { if (!phone.matches) close(false); };
+    if (phone.addEventListener) phone.addEventListener("change", onWidth);
+    else if (phone.addListener) phone.addListener(onWidth);
+    window.addEventListener("pageshow", function (e) { if (e.persisted) { close(false); update(); } });
+  }
 
   // A 2px bar across the top that fills as the page scrolls.
   function progressBar() {
