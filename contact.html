@@ -14,6 +14,8 @@
 <link rel="preload" href="assets/fonts/cormorant-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/jost-300-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="assets/css/motion.css">
+<script src="assets/js/motion.js"></script>
 </head>
 <body>
 
@@ -37,17 +39,17 @@
 
 <section class="page-head">
   <div class="wrap">
-    <p class="kicker">Contact</p>
-    <h1>Get in Touch</h1>
-    <p class="page-lede">Have a team, a project or an operation that needs someone to keep it organized? Send me a note.</p>
+    <p class="kicker" data-reveal>Contact</p>
+    <h1 data-reveal="heading">Get in Touch</h1>
+    <p class="page-lede" data-reveal>Have a team, a project or an operation that needs someone to keep it organized? Send me a note.</p>
   </div>
 </section>
 <section class="plain" id="contact">
   <div class="wrap">
-    <div class="ticket">
-      <img class="ticket-photo" src="assets/manny-portrait-head.jpg" alt="Manuel Cantu" width="300" height="300">
+    <div class="ticket" data-reveal>
+      <img class="ticket-photo" src="assets/manny-portrait-head.jpg" alt="Manuel Cantu" width="300" height="300" data-reveal="image">
       <div class="ticket-text">
-        <h2>Ready when you are</h2>
+        <h2 data-reveal="line">Ready when you are</h2>
         <ul class="contact-list">
           <li><a href="mailto:manuelcantu55@yahoo.com">manuelcantu55@yahoo.com</a></li>
           <li><a href="https://github.com/CANMAN555">github.com/CANMAN555</a></li>
@@ -64,10 +66,10 @@
 <section class="band" id="message">
   <div class="wrap message">
     <div>
-      <h2 class="small-title">Send a message</h2>
-      <p class="muted">Fill this out and your email app will open with the message ready to send.</p>
+      <h2 class="small-title" data-reveal="heading">Send a message</h2>
+      <p class="muted" data-reveal>Fill this out and your email app will open with the message ready to send.</p>
     </div>
-    <form id="contact-form" class="form" novalidate>
+    <form id="contact-form" class="form" novalidate data-reveal>
       <label for="cf-name">Your name</label>
       <input id="cf-name" name="name" type="text" autocomplete="name" required>
       <label for="cf-company">Company (optional)</label>

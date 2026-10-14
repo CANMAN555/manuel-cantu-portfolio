@@ -14,6 +14,8 @@
 <link rel="preload" href="assets/fonts/cormorant-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/jost-300-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="assets/css/motion.css">
+<script src="assets/js/motion.js"></script>
 </head>
 <body>
 
@@ -37,29 +39,29 @@
 
 <section class="page-head">
   <div class="wrap">
-    <p class="kicker">Projects</p>
-    <h1>What I've Built</h1>
-    <p class="page-lede">Technology projects I planned, led and put to work.</p>
+    <p class="kicker" data-reveal>Projects</p>
+    <h1 data-reveal="heading">What I've Built</h1>
+    <p class="page-lede" data-reveal>Technology projects I planned, led and put to work.</p>
   </div>
 </section>
 <section class="plain" id="build">
   <div class="wrap">
     <article class="project">
       <figure class="shots">
-        <img class="shot-wide" src="assets/openroad-desktop.jpg" alt="OpenRoad Service Map on a computer, showing truck service pins across the United States" width="1200" height="750">
-        <img class="shot-phone" src="assets/openroad-mobile.jpg" alt="OpenRoad Service Map on a phone" width="360" height="779">
+        <img class="shot-wide" src="assets/openroad-desktop.jpg" alt="OpenRoad Service Map on a computer, showing truck service pins across the United States" width="1200" height="750" data-reveal="image">
+        <img class="shot-phone" src="assets/openroad-mobile.jpg" alt="OpenRoad Service Map on a phone" width="360" height="779" data-reveal="image">
       </figure>
       <div class="project-text">
-        <p class="eyebrow">Project Lead · Oct 2026 – Present</p>
-        <h3>OpenRoad Service Map</h3>
-        <p class="project-lede">A free website for finding truck repair, tires, and towing along a route.</p>
-        <ul>
+        <p class="eyebrow" data-reveal>Project Lead · Oct 2026 – Present</p>
+        <h3 data-reveal>OpenRoad Service Map</h3>
+        <p class="project-lede" data-reveal>A free website for finding truck repair, tires, and towing along a route.</p>
+        <ul data-reveal>
           <li>Took a problem I deal with every day at work, finding a truck shop near a breakdown, and turned it into a free website anyone can use.</li>
           <li>Built it with an AI coding assistant over 100+ updates: I decided what it needed to do, checked every change, tested it on computer and phone, and put it online with GitHub Pages.</li>
           <li>Shows 3,600+ truck service locations from 12 companies, sorted by mile marker along the route, with tap-to-call phone numbers. The locations update on their own every week.</li>
           <li>Added a shared Post Board (beta) with a PIN where a fleet team can track trucks, trailers, work orders, and repair status in one place.</li>
         </ul>
-        <div class="actions">
+        <div class="actions" data-reveal>
           <a class="btn solid" href="https://canman555.github.io/OpenRoad-ServiceMap/">Open the website</a>
           <a class="btn line dark-line" href="https://github.com/CANMAN555/OpenRoad-ServiceMap">See the code</a>
         </div>
@@ -71,16 +73,16 @@
 <section class="band" id="ai-training">
   <div class="wrap side-card">
     <div>
-      <p class="eyebrow">Contract · 2025 – Present</p>
-      <h3>AI Trainer</h3>
-      <p class="project-lede">Helping teach AI models.</p>
+      <p class="eyebrow" data-reveal>Contract · 2025 – Present</p>
+      <h3 data-reveal>AI Trainer</h3>
+      <p class="project-lede" data-reveal>Helping teach AI models.</p>
     </div>
     <div>
-      <ul class="plain-list">
+      <ul class="plain-list" data-reveal>
         <li>Worked on a contract project training AI models.</li>
       </ul>
-      <p class="tools-label">AI platforms I use</p>
-      <ul class="inline-chips"><li>Claude</li><li>ChatGPT</li><li>Gemini</li><li>Copilot</li><li>Grok</li></ul>
+      <p class="tools-label" data-reveal>AI platforms I use</p>
+      <ul class="inline-chips" data-reveal><li>Claude</li><li>ChatGPT</li><li>Gemini</li><li>Copilot</li><li>Grok</li></ul>
     </div>
   </div>
 </section>

@@ -1,0 +1,80 @@
+/* Motion: scroll progress bar, reveal on scroll, heading lines and image wipes.
+   Elements opt in with data-reveal in the HTML:
+     data-reveal            fade in and rise 24px
+     data-reveal="heading"  fade in and rise, then draw a thin line underneath
+     data-reveal="line"     only draw the line (for headings inside a card that already reveals)
+     data-reveal="image"    wipe up from the bottom while easing from 1.08 to 1
+   Hidden states only apply once motion.js has put the "motion" class on <html>,
+   so every page stays fully readable if JavaScript is off or fails. */
+
+:root {
+  --motion-ease: cubic-bezier(.22, 1, .36, 1);
+  --motion-rise: 24px;
+  --motion-time: .9s;
+  --motion-image-time: 1.2s;
+  --motion-line-time: 1.1s;
+}
+
+/* ---------- Scroll progress ---------- */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  height: 2px; background: var(--orange);
+  transform: scaleX(0); transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* ---------- Fade and rise ---------- */
+html.motion [data-reveal]:not([data-reveal="line"]):not([data-reveal="image"]):not(.reveal-done) {
+  opacity: 0;
+  transform: translate3d(0, var(--motion-rise), 0);
+  transition: opacity var(--motion-time) var(--motion-ease), transform var(--motion-time) var(--motion-ease);
+}
+html.motion [data-reveal].is-revealed:not([data-reveal="line"]):not([data-reveal="image"]):not(.reveal-done) {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Heading lines ---------- */
+[data-reveal="heading"], [data-reveal="line"] { position: relative; }
+.reveal-line {
+  position: absolute; left: 0; bottom: -.22em;
+  width: 56px; height: 1px; background: var(--orange);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+h2.rule .reveal-line { left: 50%; margin-left: -28px; transform-origin: 50% 50%; }
+/* Big titles get a little room so the line never touches the line of text below them. */
+h1[data-reveal="heading"] { margin-bottom: 24px; }
+h1 > .reveal-line { bottom: -14px; }
+.glance h2 > .reveal-line { bottom: -4px; }
+html.motion .reveal-line { transition: transform var(--motion-line-time) var(--motion-ease) .3s; }
+html.motion [data-reveal]:not(.is-revealed) > .reveal-line { transform: scaleX(0); }
+
+/* ---------- Image wipe ---------- */
+/* Images wait invisible (but unclipped, so the browser can tell when they scroll into view).
+   On entry motion.js "arms" them: fully clipped from the top, then the clip opens upward.
+   The image starts at 1.08 with its sides trimmed by the same amount (3.7%), so it never spills outside its frame. */
+html.motion img[data-reveal="image"]:not(.reveal-done) {
+  opacity: 0;
+  transform: scale(1.08);
+}
+html.motion img[data-reveal="image"].is-armed:not(.reveal-done) {
+  opacity: 1;
+  clip-path: inset(100% 3.7% 0 3.7%);
+  transition: clip-path var(--motion-image-time) var(--motion-ease), transform var(--motion-image-time) var(--motion-ease);
+}
+html.motion img[data-reveal="image"].is-armed.is-revealed:not(.reveal-done) {
+  clip-path: inset(0 0 0 0);
+  transform: none;
+}
+
+/* ---------- Printing and reduced motion: show everything, move nothing ---------- */
+@media print {
+  .scroll-progress { display: none; }
+  html.motion [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.motion [data-reveal], html.motion .reveal-line {
+    opacity: 1 !important; transform: none !important; clip-path: none !important; transition: none !important;
+  }
+}

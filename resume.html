@@ -14,6 +14,8 @@
 <link rel="preload" href="assets/fonts/cormorant-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/jost-300-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="assets/css/motion.css">
+<script src="assets/js/motion.js"></script>
 </head>
 <body>
 
@@ -37,20 +39,20 @@
 
 <section class="page-head">
   <div class="wrap">
-    <p class="kicker">Resume</p>
-    <h1>My Resume</h1>
-    <p class="page-lede">Take a look below, or download the PDF to keep or print.</p>
+    <p class="kicker" data-reveal>Resume</p>
+    <h1 data-reveal="heading">My Resume</h1>
+    <p class="page-lede" data-reveal>Take a look below, or download the PDF to keep or print.</p>
   </div>
 </section>
 <section class="band" id="resume">
   <div class="wrap">
-    <div class="resume-actions">
+    <div class="resume-actions" data-reveal>
       <a class="btn solid" href="assets/Manuel_Cantu_Resume.pdf" download="Manuel_Cantu_Resume.pdf">Download PDF</a>
       <a class="btn line" href="assets/Manuel_Cantu_Resume.pdf" target="_blank" rel="noopener">Open in a new tab</a>
     </div>
     <div class="resume-pages">
-      <img src="assets/resume-page-1.jpg" alt="Resume page 1: profile, skills and recent experience" width="935" height="1210">
-      <img src="assets/resume-page-2.jpg" alt="Resume page 2: earlier experience, education and certifications" width="935" height="1210" loading="lazy">
+      <img src="assets/resume-page-1.jpg" alt="Resume page 1: profile, skills and recent experience" width="935" height="1210" data-reveal="image">
+      <img src="assets/resume-page-2.jpg" alt="Resume page 2: earlier experience, education and certifications" width="935" height="1210" loading="lazy" data-reveal="image">
     </div>
   </div>
 </section>
