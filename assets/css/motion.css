@@ -25,7 +25,9 @@
      h1.is-split      the name, split into words (masks) and letters that rise into view, 30ms apart
      .photo-wrap      holds the headshot and its offset terracotta ring; drifts slower than the page
      .hero .btn       fill sweeps in from the left, arrow nudges, slight lift, gentle pull toward the cursor
-     .scroll-cue      thin line above the numbers with a dot that travels down it */
+     .scroll-cue      thin line above the numbers with a dot that travels down it
+     a.mission-line   words fade in one by one, the separators draw between them, each word underlines on hover
+     .glance          the "At a glance" card lifts on hover with a line along its top; its rows fade in in turn */
 
 :root {
   --motion-ease: cubic-bezier(.22, 1, .36, 1);
@@ -337,10 +339,79 @@ html.motion .scroll-cue-line i { animation: cue-drop 2.4s var(--page-ease) infin
   100% { transform: translate3d(0, 30px, 0); opacity: 0; }
 }
 
+/* ---------- Mission bar ---------- */
+/* The separators become fine drawn lines (same color and spacing as the old dash). */
+a.mission-line span { position: relative; }
+a.mission-line span:not(:last-child)::after {
+  content: ""; display: inline-block; vertical-align: middle;
+  width: 14px; height: 1px; margin: -2px 14px 0; background: var(--peach);
+  transform-origin: 0 50%;
+}
+/* Hover: only the word under the pointer turns terracotta, with a small underline growing beneath it. */
+a.mission-line:hover span { color: var(--ink-soft); }
+a.mission-line span:hover { color: var(--terra); }
+a.mission-line span::before {
+  content: ""; position: absolute; left: 0; right: .2em; bottom: -5px; height: 1px;
+  background: var(--orange);
+  transform: scaleX(0); transform-origin: 100% 50%;
+  transition: transform .5s var(--motion-ease);
+  pointer-events: none;
+}
+a.mission-line span:not(:last-child)::before { right: calc(42px + .2em); }
+a.mission-line span:hover::before { transform: scaleX(1); transform-origin: 0 50%; }
+
+/* Entrance: once the bar reveals, words fade in 140ms apart and each separator draws after its word. */
+html.motion a.mission-line span { opacity: 0; transition: opacity .8s var(--motion-ease); }
+html.motion a.mission-line span:not(:last-child)::after { transform: scaleX(0); transition: transform .7s var(--motion-ease); }
+html.motion a.mission-line.is-revealed span { opacity: 1; }
+html.motion a.mission-line.is-revealed span:not(:last-child)::after { transform: none; }
+a.mission-line span:nth-child(1) { --wd: 150ms; }
+a.mission-line span:nth-child(2) { --wd: 290ms; }
+a.mission-line span:nth-child(3) { --wd: 430ms; }
+a.mission-line span:nth-child(4) { --wd: 570ms; }
+a.mission-line span:nth-child(5) { --wd: 710ms; }
+html.motion a.mission-line.is-revealed span { transition-delay: var(--wd); }
+html.motion a.mission-line.is-revealed span:not(:last-child)::after { transition-delay: calc(var(--wd) + 120ms); }
+
+/* ---------- "At a glance" card ---------- */
+.glance { position: relative; isolation: isolate; transition: transform .7s var(--motion-ease); }
+.glance::before {   /* the deeper shadow, faded in rather than animated */
+  content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
+  box-shadow: 0 44px 80px -40px rgba(90, 64, 40, .5);
+  opacity: 0; transition: opacity .7s var(--motion-ease);
+  pointer-events: none;
+}
+.glance::after {    /* the terracotta line along the top edge */
+  content: ""; position: absolute; top: -1px; left: -1px; right: -1px; height: 1px;
+  background: var(--orange);
+  transform: scaleX(0); transform-origin: 100% 50%;
+  transition: transform .8s var(--motion-ease);
+  pointer-events: none;
+}
+@media (hover: hover) {
+  html .glance:hover { transform: translate3d(0, -6px, 0); }
+  .glance:hover::before { opacity: 1; }
+  .glance:hover::after { transform: scaleX(1); transform-origin: 0 50%; }
+}
+/* Rows fade up one after another once the card comes into view. */
+html.motion .glance dl > div {
+  opacity: 0; transform: translate3d(0, 10px, 0);
+  transition: opacity .8s var(--motion-ease), transform .8s var(--motion-ease);
+}
+html.motion .glance.is-revealed dl > div { opacity: 1; transform: none; }
+html.motion .glance.is-revealed dl > div:nth-child(1) { transition-delay: 350ms; }
+html.motion .glance.is-revealed dl > div:nth-child(2) { transition-delay: 440ms; }
+html.motion .glance.is-revealed dl > div:nth-child(3) { transition-delay: 530ms; }
+html.motion .glance.is-revealed dl > div:nth-child(4) { transition-delay: 620ms; }
+html.motion .glance.is-revealed dl > div:nth-child(5) { transition-delay: 710ms; }
+html.motion .glance.is-revealed dl > div:nth-child(6) { transition-delay: 800ms; }
+
 /* ---------- Printing and reduced motion: show everything, move nothing ---------- */
 @media print {
   .scroll-progress, .pt-panel, .menu-btn, .scroll-cue { display: none !important; }
   .photo-wrap { transform: none !important; }
+  html.motion a.mission-line span, html.motion .glance dl > div { opacity: 1 !important; transform: none !important; }
+  html.motion a.mission-line span::after { transform: none !important; }
   html.nav-js .nav { position: static; transform: none; }
   html.nav-js main > :first-child { border-top: 0; }
   html::before, html::after { display: none !important; }
@@ -355,4 +426,6 @@ html.motion .scroll-cue-line i { animation: cue-drop 2.4s var(--page-ease) infin
   html.nav-js .tabs, html.nav-js .nav .tabs a, .tabs a::after, .menu-btn span,
   .hero .btn, .hero .btn::before, .btn-arrow, .photo-frame { transition: none !important; }
   .scroll-cue-line i { animation: none !important; }
+  .glance, .glance::before, .glance::after, a.mission-line span::before { transition: none !important; }
+  .glance:hover { transform: none !important; }
 }
