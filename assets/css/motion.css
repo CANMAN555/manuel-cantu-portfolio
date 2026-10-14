@@ -606,15 +606,17 @@ html.motion #experience { overflow-x: clip; }
 @media (hover: hover) { .shots.lift-card:hover { --lift: -8px; } }
 
 /* ---------- Contact form ---------- */
-.fx-form .field { position: relative; padding-top: 22px; }
+/* The top padding equals the original label row (10px margin + 12px x 1.7 line + 8px gap),
+   so wrapping the fields doesn't move anything on the page. */
+.fx-form .field { position: relative; padding-top: 38.4px; }
 .fx-form .field label {
-  position: absolute; left: 15px; top: 39px; margin: 0;
+  position: absolute; left: 15px; top: 55.4px; margin: 0;
   color: var(--ink-soft); pointer-events: none;
   transition: transform .45s var(--motion-ease);
 }
 .fx-form .field:focus-within label,
-.fx-form .field.is-filled label { transform: translate3d(-15px, -39px, 0); color: var(--terra); }
-.fx-form textarea { display: block; }
+.fx-form .field.is-filled label { transform: translate3d(-15px, -45.4px, 0); color: var(--terra); }
+.fx-form .field input, .fx-form textarea { display: block; }
 .fx-form input:focus, .fx-form textarea:focus { box-shadow: none; }
 .fx-form .field-bar {
   position: absolute; left: 0; right: 0; bottom: 0; height: 2px;

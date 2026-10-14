@@ -837,6 +837,18 @@
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
 
     for (var i = 0; i < items.length; i++) io.observe(items[i]);
+
+    // Keyboard focus never lands on something still waiting to fade in: show it right away.
+    document.addEventListener("focusin", function (e) {
+      var el = e.target;
+      while (el && el !== document.body) {
+        if (el.hasAttribute && el.hasAttribute("data-reveal") && !el.classList.contains("is-revealed") && !el.classList.contains("hero-seq")) {
+          io.unobserve(el);
+          reveal(el, 0);
+        }
+        el = el.parentNode;
+      }
+    });
   }
 
   // Each element animates once. When it's finished, its motion styles are dropped
