@@ -122,6 +122,9 @@
       hero();
     } catch (err) { /* the hero simply stays as written */ }
     try {
+      cards();
+    } catch (err) { /* the cards keep their plain hover */ }
+    try {
       progressBar();
       addLines();
       if (animate) {
@@ -401,6 +404,73 @@
     }
   }
 
+  // ---------- "Take a Look" cards: caption over the image, tilt and sheen on desktop ----------
+  function cards() {
+    var list = document.querySelectorAll(".explore-card");
+    if (!list.length) return;
+    var fine = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 901px)");
+    var ARROW = '<svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M0 5h14.5M10.5 1l4 4-4 4"/></svg>';
+    for (var i = 0; i < list.length; i++) {
+      var card = list[i];
+      var img = card.querySelector("img");
+      var title = card.querySelector("h3");
+      if (img) {
+        // Frame the image and lay a caption over it. The caption repeats the card's own title,
+        // so it's hidden from screen readers, which already read the title below.
+        var media = document.createElement("span");
+        media.className = "card-media";
+        media.style.display = "block";
+        img.parentNode.insertBefore(media, img);
+        media.appendChild(img);
+        var shade = document.createElement("span");
+        shade.className = "card-shade";
+        shade.setAttribute("aria-hidden", "true");
+        var cap = document.createElement("span");
+        cap.className = "card-caption";
+        cap.setAttribute("aria-hidden", "true");
+        var capTitle = document.createElement("span");
+        capTitle.className = "card-caption-title";
+        capTitle.textContent = title ? title.textContent : "";
+        var go = document.createElement("span");
+        go.className = "card-caption-go";
+        go.innerHTML = "Explore " + ARROW;
+        cap.appendChild(capTitle);
+        cap.appendChild(go);
+        media.appendChild(shade);
+        media.appendChild(cap);
+      }
+      if (!reduce) tilt(card);
+    }
+
+    function tilt(card) {
+      var sheen = document.createElement("span");
+      sheen.className = "card-sheen";
+      sheen.setAttribute("aria-hidden", "true");
+      card.appendChild(sheen);
+      var px = 0.5, py = 0.5, x = 0, y = 0, queued = false;
+      function paint() {
+        queued = false;
+        card.style.setProperty("--ry", ((px - 0.5) * 8).toFixed(2) + "deg");   // up to 4 degrees each way
+        card.style.setProperty("--rx", ((0.5 - py) * 8).toFixed(2) + "deg");
+        sheen.style.transform = "translate3d(" + x.toFixed(0) + "px," + y.toFixed(0) + "px,0)";
+      }
+      card.addEventListener("mousemove", function (e) {
+        if (!fine.matches) return;
+        var r = card.getBoundingClientRect();
+        px = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+        py = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+        x = e.clientX - r.left; y = e.clientY - r.top;
+        card.classList.add("is-tilting");
+        if (!queued) { queued = true; window.requestAnimationFrame(paint); }
+      });
+      card.addEventListener("mouseleave", function () {
+        card.classList.remove("is-tilting");
+        card.style.removeProperty("--rx");
+        card.style.removeProperty("--ry");
+      });
+    }
+  }
+
   // ---------- Number tiles: count up from 0 once, keeping "~", "+" and commas exactly as written ----------
   var counters = [];
   function prepCounts() {
@@ -463,7 +533,8 @@
         group.els.sort(function (a, b) {
           return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
         });
-        group.els.forEach(function (el, i) { reveal(el, Math.min(i, MAX_STEPS) * STAGGER); });
+        var step = group.parent.classList && group.parent.classList.contains("explore") ? 160 : STAGGER;
+        group.els.forEach(function (el, i) { reveal(el, Math.min(i, MAX_STEPS) * step); });
       });
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
 

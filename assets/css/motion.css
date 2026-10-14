@@ -29,7 +29,9 @@
      a.mission-line   words fade in one by one, the separators draw between them, each word underlines on hover
      .glance          the "At a glance" card lifts on hover with a line along its top; its rows fade in in turn
      .tile            the four numbers count up once (motion.js reads data-count), a terracotta line draws
-                      across each tile's top from left to right, and on hover the number rises and the label warms */
+                      across each tile's top from left to right, and on hover the number rises and the label warms
+     .explore-card    "Take a Look" cards: staggered entrance, lift and image zoom on hover, a dark-brown caption
+                      with the title and "Explore" rising over the image, a 3D tilt and light sheen on desktop */
 
 :root {
   --motion-ease: cubic-bezier(.22, 1, .36, 1);
@@ -428,6 +430,60 @@ html.motion .tile:nth-child(4).is-revealed::before { transition-delay: 580ms; }
   .tile:hover p { color: var(--terra); }
 }
 
+/* ---------- "Take a Look" cards ---------- */
+.explore { perspective: 1100px; }
+.explore .explore-card {
+  position: relative; overflow: hidden;
+  transform: translate3d(0, var(--lift, 0px), 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: border-color .2s, transform .6s var(--motion-ease);
+}
+.explore .explore-card:focus-visible { outline: 2px solid var(--orange); outline-offset: 4px; border-color: var(--taupe); --lift: -8px; }
+@media (hover: hover) {
+  .explore .explore-card:hover { --lift: -8px; }
+}
+/* While the cursor is moving over a card, follow it quickly. */
+.explore .explore-card.is-tilting { transition: border-color .2s, transform .25s var(--motion-ease); }
+
+/* The image sits in a frame so it can zoom without spilling out, with the caption laid over it. */
+.card-media { position: relative; overflow: hidden; border: 1px solid var(--line); margin-bottom: 8px; }
+.card-media img { border: 0; margin: 0; }
+.explore-card .card-media img { transition: transform .8s var(--motion-ease); }
+.card-shade {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to top, rgba(58, 47, 40, .86) 0%, rgba(58, 47, 40, .45) 38%, rgba(58, 47, 40, 0) 72%);
+  opacity: 0; transition: opacity .7s var(--motion-ease);
+  pointer-events: none;
+}
+.card-caption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 20px 16px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+  color: var(--white);
+  opacity: 0; transform: translate3d(0, 100%, 0);
+  transition: transform .7s var(--motion-ease), opacity .5s var(--motion-ease);
+  pointer-events: none;
+}
+.card-caption-title { font-family: var(--display); font-weight: 500; font-size: 24px; line-height: 1.1; }
+.card-caption-go { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; }
+.card-caption-go svg { display: block; }
+@media (hover: hover) {
+  .explore-card:hover .card-media img.reveal-done,
+  html:not(.motion) .explore-card:hover .card-media img { transform: scale(1.06); }
+  .explore-card:hover .card-shade { opacity: 1; }
+  .explore-card:hover .card-caption { opacity: 1; transform: none; transition-delay: .08s; }
+}
+.explore-card:focus-visible .card-shade { opacity: 1; }
+.explore-card:focus-visible .card-caption { opacity: 1; transform: none; }
+
+/* Light sheen: a soft glow that follows the cursor across the card. */
+.card-sheen {
+  position: absolute; top: -180px; left: -180px; width: 360px; height: 360px; z-index: 2;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, .12) 38%, rgba(255, 255, 255, 0) 70%);
+  opacity: 0; transition: opacity .6s var(--motion-ease);
+  pointer-events: none;
+}
+.explore-card.is-tilting .card-sheen { opacity: 1; }
+
 /* ---------- Printing and reduced motion: show everything, move nothing ---------- */
 @media print {
   .scroll-progress, .pt-panel, .menu-btn, .scroll-cue { display: none !important; }
@@ -453,4 +509,6 @@ html.motion .tile:nth-child(4).is-revealed::before { transition-delay: 580ms; }
   .glance:hover { transform: none !important; }
   .tile::before { transform: none !important; transition: none !important; }
   .tile b { transition: none !important; }
+  .explore .explore-card, .explore-card .card-media img, .card-shade, .card-caption { transition: none !important; }
+  .card-sheen { display: none; }
 }
