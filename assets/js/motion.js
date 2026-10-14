@@ -125,6 +125,10 @@
       cards();
     } catch (err) { /* the cards keep their plain hover */ }
     try {
+      cta();
+      toTop();
+    } catch (err) { /* both are extras; the page works without them */ }
+    try {
       progressBar();
       addLines();
       if (animate) {
@@ -471,6 +475,118 @@
     }
   }
 
+  // ---------- "Ready when you are" ----------
+  function cta() {
+    var section = document.querySelector(".cta");
+    if (!section) return;
+
+    // Faint tan circle and arc behind the text, drifting a little slower than the page.
+    var orbit = document.createElement("span");
+    orbit.className = "cta-orbit";
+    orbit.setAttribute("aria-hidden", "true");
+    orbit.innerHTML = '<svg viewBox="0 0 640 640"><circle cx="320" cy="320" r="250"/><path d="M320 30 A290 290 0 0 1 571 465"/></svg>';
+    section.insertBefore(orbit, section.firstChild);
+    if (!reduce) {
+      var queued = false;
+      var drift = function () {
+        queued = false;
+        var r = section.getBoundingClientRect();
+        var off = ((r.top + r.height / 2) - window.innerHeight / 2) * 0.18;
+        off = Math.max(-60, Math.min(60, off));
+        orbit.style.transform = "translate3d(0," + off.toFixed(1) + "px,0)";
+      };
+      var queue = function () { if (!queued) { queued = true; window.requestAnimationFrame(drift); } };
+      window.addEventListener("scroll", queue, { passive: true });
+      window.addEventListener("resize", queue);
+      drift();
+    }
+
+    var h2 = section.querySelector("h2");
+    if (h2 && animate) h2.classList.add("line-split");
+
+    // Ripple: start the fill where the pointer comes in, and let it shrink back toward where it leaves.
+    var btn = section.querySelector(".btn");
+    if (btn) {
+      var place = function (e) {
+        var r = btn.getBoundingClientRect();
+        btn.style.setProperty("--ox", (e.clientX - r.left).toFixed(0) + "px");
+        btn.style.setProperty("--oy", (e.clientY - r.top).toFixed(0) + "px");
+      };
+      btn.addEventListener("mouseenter", place);
+      btn.addEventListener("mouseleave", place);
+      btn.addEventListener("focus", function () { btn.style.removeProperty("--ox"); btn.style.removeProperty("--oy"); });
+    }
+  }
+
+  // Split a heading into one mask per rendered line, then put the original text back once it's in.
+  function splitLines(el) {
+    var line = el.querySelector(".reveal-line");
+    var text = el.textContent;
+    var words = text.trim().split(/\s+/);
+    el.textContent = "";
+    var probes = words.map(function (w, i) {
+      var s = document.createElement("span");
+      s.textContent = w;
+      el.appendChild(s);
+      if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+      return s;
+    });
+    var lines = [], lastTop = null;
+    probes.forEach(function (s) {
+      var top = s.offsetTop;
+      if (lastTop === null || Math.abs(top - lastTop) > 4) { lines.push([]); lastTop = top; }
+      lines[lines.length - 1].push(s.textContent);
+    });
+    el.textContent = "";
+    el.setAttribute("aria-label", text.trim());
+    lines.forEach(function (ws, i) {
+      var ln = document.createElement("span");
+      ln.className = "ln";
+      ln.setAttribute("aria-hidden", "true");
+      var lt = document.createElement("span");
+      lt.className = "lt";
+      lt.textContent = ws.join(" ");
+      lt.style.transitionDelay = (i * 120) + "ms";
+      ln.appendChild(lt);
+      el.appendChild(ln);
+    });
+    if (line) el.appendChild(line);
+    window.setTimeout(function () {
+      el.textContent = text;
+      el.removeAttribute("aria-label");
+      if (line) el.appendChild(line);
+    }, 1000 + lines.length * 120 + 250);
+  }
+
+  // ---------- Back to top ----------
+  function toTop() {
+    var main = document.getElementById("main");
+    var first = main && main.firstElementChild;
+    if (!first) return;
+    var link = document.createElement("a");
+    link.className = "to-top";
+    link.href = "#main";
+    link.innerHTML = '<svg width="10" height="14" viewBox="0 0 10 14" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M5 14V1.5M1 5.5l4-4 4 4"/></svg><span class="to-top-label">Back to top</span>';
+    document.body.appendChild(link);
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      // Keyboard focus goes back to the start of the page too.
+      if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+      main.focus({ preventScroll: true });
+    });
+    var queued = false;
+    var check = function () {
+      queued = false;
+      var past = first.getBoundingClientRect().bottom < 0;
+      link.classList.toggle("is-shown", past);
+    };
+    window.addEventListener("scroll", function () {
+      if (!queued) { queued = true; window.requestAnimationFrame(check); }
+    }, { passive: true });
+    check();
+  }
+
   // ---------- Number tiles: count up from 0 once, keeping "~", "+" and commas exactly as written ----------
   var counters = [];
   function prepCounts() {
@@ -516,6 +632,9 @@
 
   function observe() {
     prepCounts();
+    // Footer contact items join the reveal so they fade in one after another.
+    var contacts = document.querySelectorAll(".foot-contact a");
+    for (var f = 0; f < contacts.length; f++) contacts[f].setAttribute("data-reveal", "");
     var items = document.querySelectorAll("[data-reveal]:not(.hero-seq)");
     var io = new IntersectionObserver(function (entries) {
       // Group what entered together by parent, so siblings follow one another in page order.
@@ -550,6 +669,7 @@
       el.classList.add("is-armed");   // jump to fully clipped with no transition
       void el.offsetWidth;            // let the browser apply that before the wipe starts
     }
+    if (el.classList.contains("line-split")) splitLines(el);
     if (delay) el.style.transitionDelay = delay + "ms";
     el.classList.add("is-revealed");
     var num = el.querySelector("[data-count]");
