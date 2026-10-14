@@ -18,6 +18,14 @@
   if (animate) root.classList.add("motion");
   root.classList.add("nav-js");   // the header upgrade runs with or without reduced motion
 
+  // About page opened with #mission: hold the browser's instant jump so we can glide there instead.
+  var missionArrival = false;
+  if (!reduce && window.location.hash === "#mission" && /about\.html$|about$/.test(window.location.pathname) && window.history.replaceState) {
+    missionArrival = true;
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+  }
+
   // sessionStorage can be blocked (private modes, strict settings); then transitions simply don't play.
   function store(key, value) {
     try {
@@ -128,6 +136,9 @@
       cta();
       toTop();
     } catch (err) { /* both are extras; the page works without them */ }
+    try {
+      innerPages();
+    } catch (err) { /* the inner pages stay exactly as written */ }
     try {
       progressBar();
       addLines();
@@ -332,36 +343,9 @@
       }
     }
 
-    // Buttons: add the arrow, and on desktop a gentle pull toward the cursor (6px at most).
-    var ARROWS = {
-      right: '<svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M0 5h14.5M10.5 1l4 4-4 4"/></svg>',
-      down: '<svg width="10" height="14" viewBox="0 0 10 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 0v12.5M1 8.5l4 4 4-4"/></svg>'
-    };
+    // Buttons: arrow, sweep, lift and a gentle pull toward the cursor.
     var buttons = section.querySelectorAll(".hero-text .actions .btn");
-    for (var b = 0; b < buttons.length; b++) {
-      var btn = buttons[b];
-      var dir = btn.hasAttribute("download") ? "down" : "right";
-      var arrow = document.createElement("span");
-      arrow.className = "btn-arrow to-" + dir;
-      arrow.setAttribute("aria-hidden", "true");
-      arrow.innerHTML = ARROWS[dir];
-      btn.appendChild(arrow);
-      if (!reduce) magnet(btn);
-    }
-    function magnet(el) {
-      el.addEventListener("mousemove", function (e) {
-        if (!fine.matches) return;
-        var r = el.getBoundingClientRect();
-        var x = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
-        var y = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
-        el.style.setProperty("--mx", (Math.max(-1, Math.min(1, x)) * 6).toFixed(1) + "px");
-        el.style.setProperty("--my", (Math.max(-1, Math.min(1, y)) * 6).toFixed(1) + "px");
-      });
-      el.addEventListener("mouseleave", function () {
-        el.style.removeProperty("--mx");
-        el.style.removeProperty("--my");
-      });
-    }
+    for (var b = 0; b < buttons.length; b++) fxButton(buttons[b]);
 
     // Scroll cue above the numbers.
     var results = section.querySelector(".results");
@@ -446,33 +430,228 @@
       if (!reduce) tilt(card);
     }
 
-    function tilt(card) {
-      var sheen = document.createElement("span");
-      sheen.className = "card-sheen";
-      sheen.setAttribute("aria-hidden", "true");
-      card.appendChild(sheen);
-      var px = 0.5, py = 0.5, x = 0, y = 0, queued = false;
-      function paint() {
-        queued = false;
-        card.style.setProperty("--ry", ((px - 0.5) * 8).toFixed(2) + "deg");   // up to 4 degrees each way
-        card.style.setProperty("--rx", ((0.5 - py) * 8).toFixed(2) + "deg");
-        sheen.style.transform = "translate3d(" + x.toFixed(0) + "px," + y.toFixed(0) + "px,0)";
-      }
-      card.addEventListener("mousemove", function (e) {
-        if (!fine.matches) return;
-        var r = card.getBoundingClientRect();
-        px = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-        py = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
-        x = e.clientX - r.left; y = e.clientY - r.top;
-        card.classList.add("is-tilting");
-        if (!queued) { queued = true; window.requestAnimationFrame(paint); }
-      });
-      card.addEventListener("mouseleave", function () {
-        card.classList.remove("is-tilting");
-        card.style.removeProperty("--rx");
-        card.style.removeProperty("--ry");
-      });
+  }
+
+  // ---------- Button treatment shared by the home hero and the resume page ----------
+  // The fill sweeps in from the left, a thin arrow nudges, the button lifts slightly,
+  // and on desktop it leans toward the cursor by 6px at most.
+  var fineMQ = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 901px)");
+  var ARROWS = {
+    right: '<svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M0 5h14.5M10.5 1l4 4-4 4"/></svg>',
+    down: '<svg width="10" height="14" viewBox="0 0 10 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 0v12.5M1 8.5l4 4 4-4"/></svg>',
+    out: '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 11L10.5 1.5M4 1.5h6.5V8"/></svg>'
+  };
+  function fxButton(btn) {
+    if (btn.classList.contains("btn-fx")) return;
+    btn.classList.add("btn-fx");
+    var dir = btn.hasAttribute("download") ? "down" : btn.target === "_blank" ? "out" : "right";
+    var arrow = document.createElement("span");
+    arrow.className = "btn-arrow to-" + dir;
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.innerHTML = ARROWS[dir];
+    btn.appendChild(arrow);
+    if (reduce) return;
+    btn.addEventListener("mousemove", function (e) {
+      if (!fineMQ.matches) return;
+      var r = btn.getBoundingClientRect();
+      var x = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+      var y = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+      btn.style.setProperty("--mx", (Math.max(-1, Math.min(1, x)) * 6).toFixed(1) + "px");
+      btn.style.setProperty("--my", (Math.max(-1, Math.min(1, y)) * 6).toFixed(1) + "px");
+    });
+    btn.addEventListener("mouseleave", function () {
+      btn.style.removeProperty("--mx");
+      btn.style.removeProperty("--my");
+    });
+  }
+
+  // ---------- Tilt and sheen shared by the home cards and the project screenshots (desktop only) ----------
+  function tilt(card) {
+    var clip = document.createElement("span");
+    clip.className = "sheen-clip";
+    clip.setAttribute("aria-hidden", "true");
+    var sheen = document.createElement("span");
+    sheen.className = "card-sheen";
+    clip.appendChild(sheen);
+    card.appendChild(clip);
+    var px = 0.5, py = 0.5, x = 0, y = 0, queued = false;
+    function paint() {
+      queued = false;
+      card.style.setProperty("--ry", ((px - 0.5) * 8).toFixed(2) + "deg");   // up to 4 degrees each way
+      card.style.setProperty("--rx", ((0.5 - py) * 8).toFixed(2) + "deg");
+      sheen.style.transform = "translate3d(" + x.toFixed(0) + "px," + y.toFixed(0) + "px,0)";
     }
+    card.addEventListener("mousemove", function (e) {
+      if (!fineMQ.matches) return;
+      var r = card.getBoundingClientRect();
+      px = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+      py = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+      x = e.clientX - r.left; y = e.clientY - r.top;
+      card.classList.add("is-tilting");
+      if (!queued) { queued = true; window.requestAnimationFrame(paint); }
+    });
+    card.addEventListener("mouseleave", function () {
+      card.classList.remove("is-tilting");
+      card.style.removeProperty("--rx");
+      card.style.removeProperty("--ry");
+    });
+  }
+
+  // ---------- Inner pages ----------
+  function innerPages() {
+    // About: arriving with #mission glides down to it, then pulses its underline.
+    var mission = document.getElementById("mission");
+    if (mission && missionArrival) {
+      window.setTimeout(function () {
+        mission.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (window.history.replaceState) window.history.replaceState(null, "", "#mission");
+        var head = mission.querySelector("h2");
+        if (head) window.setTimeout(function () { head.classList.add("is-pulsing"); }, 1500);
+        if (head) window.setTimeout(function () { head.classList.remove("is-pulsing"); }, 1500 + 2600);
+      }, startDelay + 250);
+    }
+
+    // Experience: a terracotta line draws down each group and each dot fills as it passes mid-screen.
+    var groups = document.querySelectorAll(".departures");
+    if (groups.length && !reduce) {
+      var rows = [];
+      for (var g = 0; g < groups.length; g++) {
+        var line = document.createElement("span");
+        line.className = "tl-line";
+        line.setAttribute("aria-hidden", "true");
+        groups[g].insertBefore(line, groups[g].firstChild);
+        groups[g].classList.add("is-timeline");
+        var items = groups[g].querySelectorAll("details > summary");
+        for (var k = 0; k < items.length; k++) {
+          var fill = document.createElement("span");
+          fill.className = "tl-fill";
+          fill.setAttribute("aria-hidden", "true");
+          items[k].appendChild(fill);
+          rows.push(items[k]);
+        }
+      }
+      var queued = false;
+      var draw = function () {
+        queued = false;
+        var mid = window.innerHeight / 2;
+        for (var i = 0; i < groups.length; i++) {
+          var r = groups[i].getBoundingClientRect();
+          var p = r.height > 0 ? Math.min(1, Math.max(0, (mid - r.top) / r.height)) : 0;
+          groups[i].firstChild.style.transform = "scaleY(" + p.toFixed(4) + ")";
+        }
+        for (var j = 0; j < rows.length; j++) {
+          // The dot sits about 28px down from the top of each line.
+          rows[j].classList.toggle("is-lit", rows[j].getBoundingClientRect().top + 28 <= mid);
+        }
+      };
+      var queue = function () { if (!queued) { queued = true; window.requestAnimationFrame(draw); } };
+      window.addEventListener("scroll", queue, { passive: true });
+      window.addEventListener("resize", queue);
+      document.addEventListener("toggle", queue, true);
+      draw();
+    }
+
+    // Projects: list items and chips come in one by one instead of as one block,
+    // and the screenshots get the same lift, tilt and sheen as the home cards.
+    var lists = document.querySelectorAll("#build ul[data-reveal], #ai-training ul[data-reveal]");
+    for (var l = 0; l < lists.length; l++) {
+      if (!animate) break;
+      lists[l].removeAttribute("data-reveal");
+      var lis = lists[l].children;
+      for (var m = 0; m < lis.length; m++) lis[m].setAttribute("data-reveal", "");
+    }
+    var shots = document.querySelector("#build .shots");
+    if (shots) {
+      shots.classList.add("lift-card");
+      if (!reduce) tilt(shots);
+    }
+
+    // Resume: the pages fade in (instead of wiping) and both buttons get the home button treatment.
+    var pages = document.querySelectorAll(".resume-pages img[data-reveal]");
+    for (var n = 0; n < pages.length; n++) pages[n].setAttribute("data-reveal", "");
+    var rbtns = document.querySelectorAll(".resume-actions .btn");
+    for (var q = 0; q < rbtns.length; q++) fxButton(rbtns[q]);
+
+    // Contact: floating labels, inline checks and a short "sent" moment.
+    var form = document.getElementById("contact-form");
+    if (form) contactForm(form);
+  }
+
+  function contactForm(form) {
+    var MESSAGES = { name: "Please add your name.", message: "Please add a short message." };
+    var fields = form.querySelectorAll("input, textarea");
+    var list = [];
+    for (var i = 0; i < fields.length; i++) {
+      var input = fields[i];
+      var label = form.querySelector('label[for="' + input.id + '"]');
+      if (!label) continue;
+      var wrap = document.createElement("div");
+      wrap.className = "field" + (input.tagName === "TEXTAREA" ? " is-area" : "");
+      form.insertBefore(wrap, label);
+      wrap.appendChild(label);
+      wrap.appendChild(input);
+      var bar = document.createElement("span");
+      bar.className = "field-bar";
+      bar.setAttribute("aria-hidden", "true");
+      wrap.appendChild(bar);
+      var item = { input: input, wrap: wrap, error: null };
+      if (input.required && MESSAGES[input.name]) {
+        var err = document.createElement("p");
+        err.className = "field-error";
+        err.id = input.id + "-error";
+        form.insertBefore(err, wrap.nextSibling);
+        item.error = err;
+      }
+      list.push(item);
+      bind(item);
+    }
+    form.classList.add("fx-form");
+
+    function filled(item) { item.wrap.classList.toggle("is-filled", item.input.value.trim() !== ""); }
+    function check(item) {
+      if (!item.error) return true;
+      var ok = item.input.value.trim() !== "";
+      item.wrap.classList.toggle("is-invalid", !ok);
+      if (ok) {
+        item.input.removeAttribute("aria-invalid");
+        item.input.removeAttribute("aria-describedby");
+        item.error.textContent = "";
+      } else {
+        item.input.setAttribute("aria-invalid", "true");
+        item.input.setAttribute("aria-describedby", item.error.id);
+        item.error.textContent = MESSAGES[item.input.name];
+      }
+      return ok;
+    }
+    function bind(item) {
+      filled(item);
+      item.input.addEventListener("input", function () {
+        filled(item);
+        if (item.wrap.classList.contains("is-invalid")) check(item);   // clears as soon as it's fixed
+        form.classList.remove("is-sent");
+      });
+      item.input.addEventListener("blur", function () {
+        // Only speak up after someone has been in the field and left it empty.
+        if (item.touched) check(item);
+      });
+      item.input.addEventListener("focus", function () { item.touched = true; });
+    }
+
+    // contact.js still builds and opens the email; this only adds the field messages and the "sent" moment.
+    var icon = document.createElement("span");
+    icon.className = "form-sent";
+    icon.setAttribute("aria-hidden", "true");
+    icon.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="11" cy="11" r="10"/><path d="M6.5 11.5l3 3 6-6.5"/></svg>';
+    var note = document.getElementById("cf-note");
+    if (note) note.parentNode.insertBefore(icon, note);
+    form.addEventListener("submit", function () {
+      var firstBad = null;
+      list.forEach(function (item) { item.touched = true; if (!check(item) && !firstBad) firstBad = item.input; });
+      if (firstBad) { form.classList.remove("is-sent"); firstBad.focus(); return; }
+      form.classList.remove("is-sent");
+      void form.offsetWidth;
+      form.classList.add("is-sent");
+    });
   }
 
   // ---------- "Ready when you are" ----------

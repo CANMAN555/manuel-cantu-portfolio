@@ -24,7 +24,7 @@
    Home hero (after the header):
      h1.is-split      the name, split into words (masks) and letters that rise into view, 30ms apart
      .photo-wrap      holds the headshot and its offset terracotta ring; drifts slower than the page
-     .hero .btn       fill sweeps in from the left, arrow nudges, slight lift, gentle pull toward the cursor
+     .btn.btn-fx      fill sweeps in from the left, arrow nudges, slight lift, gentle pull toward the cursor
      .scroll-cue      thin line above the numbers with a dot that travels down it
      a.mission-line   words fade in one by one, the separators draw between them, each word underlines on hover
      .glance          the "At a glance" card lifts on hover with a line along its top; its rows fade in in turn
@@ -35,7 +35,14 @@
      .cta             "Ready when you are": a faint tan circle and arc drift behind it, the headline rises line
                       by line, and the button fills with a ripple that spreads from where the pointer enters
      .site-foot       links underline from the left like the nav; contact items fade in one after another
-     .to-top          "Back to top" appears once you're past the first section and glides back up */
+     .to-top          "Back to top" appears once you're past the first section and glides back up
+
+   Inner pages (bottom of the page-specific blocks):
+     About            arriving at #mission glides there, then the heading's underline pulses twice
+     Experience       a terracotta line draws down each group, dots fill at mid-screen, rows slide in from alternate sides
+     Projects         list items and chips arrive one by one; the screenshots lift and tilt like the home cards
+     Resume           the pages fade in; both buttons use the home button treatment
+     Contact          floating labels, a growing underline on focus, calm inline messages, a short "sent" check */
 
 :root {
   --motion-ease: cubic-bezier(.22, 1, .36, 1);
@@ -304,26 +311,27 @@ html.motion .hero .glance-photo[data-reveal="image"].is-armed:not(.reveal-done) 
 html.motion .hero .glance-photo[data-reveal="image"].is-armed.is-revealed:not(.reveal-done) { clip-path: inset(0 0 0 0); transform: none; }
 
 /* Buttons: the fill is its own layer, so it can sweep in with a transform. */
-.hero .btn {
+.btn.btn-fx {
   position: relative; isolation: isolate; overflow: hidden;
   transform: translate3d(var(--mx, 0px), calc(var(--my, 0px) + var(--lift, 0px)), 0);
   transition: transform .6s var(--motion-ease);
 }
-.hero .btn::before {
+.btn.btn-fx::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
   transform: scaleX(0); transform-origin: 100% 50%;
   transition: transform .6s var(--motion-ease);
 }
-.hero .btn.solid::before { background: var(--terra); }
-.hero .btn.line::before { background: rgba(187, 106, 44, .1); }
-.hero .btn.solid:hover, .hero .btn.solid:focus-visible { background: var(--orange); border-color: var(--terra); }
-.hero .btn.line:hover, .hero .btn.line:focus-visible { background: transparent; }
-.hero .btn:hover, .hero .btn:focus-visible { --lift: -2px; }
-.hero .btn:hover::before, .hero .btn:focus-visible::before { transform: scaleX(1); transform-origin: 0 50%; }
+.btn.btn-fx.solid::before { background: var(--terra); }
+.btn.btn-fx.line::before { background: rgba(187, 106, 44, .1); }
+.btn.btn-fx.solid:hover, .btn.btn-fx.solid:focus-visible { background: var(--orange); border-color: var(--terra); }
+.btn.btn-fx.line:hover, .btn.btn-fx.line:focus-visible { background: transparent; }
+.btn.btn-fx:hover, .btn.btn-fx:focus-visible { --lift: -2px; }
+.btn.btn-fx:hover::before, .btn.btn-fx:focus-visible::before { transform: scaleX(1); transform-origin: 0 50%; }
 .btn-arrow { display: inline-block; margin-left: 12px; line-height: 0; vertical-align: middle; transition: transform .6s var(--motion-ease); }
 .btn-arrow svg { display: block; }
-.hero .btn:hover .btn-arrow.to-right, .hero .btn:focus-visible .btn-arrow.to-right { transform: translate3d(4px, 0, 0); }
-.hero .btn:hover .btn-arrow.to-down, .hero .btn:focus-visible .btn-arrow.to-down { transform: translate3d(0, 4px, 0); }
+.btn.btn-fx:hover .btn-arrow.to-right, .btn.btn-fx:focus-visible .btn-arrow.to-right { transform: translate3d(4px, 0, 0); }
+.btn.btn-fx:hover .btn-arrow.to-down, .btn.btn-fx:focus-visible .btn-arrow.to-down { transform: translate3d(0, 4px, 0); }
+.btn.btn-fx:hover .btn-arrow.to-out, .btn.btn-fx:focus-visible .btn-arrow.to-out { transform: translate3d(3px, -3px, 0); }
 
 /* Scroll cue, centered in the space above the row of numbers. */
 .hero .results-wrap { position: relative; }
@@ -478,15 +486,16 @@ html.motion .tile:nth-child(4).is-revealed::before { transition-delay: 580ms; }
 .explore-card:focus-visible .card-shade { opacity: 1; }
 .explore-card:focus-visible .card-caption { opacity: 1; transform: none; }
 
-/* Light sheen: a soft glow that follows the cursor across the card. */
+/* Light sheen: a soft glow that follows the cursor across the card, clipped to the card's edges. */
+.sheen-clip { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; overflow: hidden; pointer-events: none; }
 .card-sheen {
-  position: absolute; top: -180px; left: -180px; width: 360px; height: 360px; z-index: 2;
+  position: absolute; top: -180px; left: -180px; width: 360px; height: 360px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, .12) 38%, rgba(255, 255, 255, 0) 70%);
   opacity: 0; transition: opacity .6s var(--motion-ease);
   pointer-events: none;
 }
-.explore-card.is-tilting .card-sheen { opacity: 1; }
+.is-tilting .card-sheen { opacity: 1; }
 
 /* ---------- "Ready when you are" ---------- */
 .cta { position: relative; overflow: hidden; }
@@ -556,6 +565,75 @@ html.motion .cta h2.is-revealed .lt { transform: none; }
   .to-top-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 
+/* ---------- About: #mission arrival ---------- */
+h2.rule.is-pulsing > .reveal-line { animation: mission-pulse 1.3s var(--motion-ease) 2; }
+@keyframes mission-pulse {
+  0%, 100% { transform: scaleX(1); opacity: 1; }
+  50%      { transform: scaleX(2.6); opacity: .55; }
+}
+
+/* ---------- Experience: timeline ---------- */
+.departures.is-timeline { position: relative; }
+.tl-line {
+  position: absolute; top: 0; bottom: 0; left: -1px; width: 1px;
+  background: var(--orange);
+  transform: scaleY(0); transform-origin: 50% 0;
+  pointer-events: none;
+}
+.tl-fill {
+  position: absolute; left: -7px; top: 22px; width: 13px; height: 13px; border-radius: 50%;
+  background: var(--orange);
+  transform: scale(0);
+  transition: transform .6s var(--motion-ease);
+  pointer-events: none;
+}
+summary.is-lit .tl-fill { transform: none; }
+@media (max-width: 640px) { .tl-fill { top: 20px; } }
+html.motion #experience { overflow-x: clip; }
+/* Rows slide in from alternating sides on wider screens; on phones they rise from below. */
+@media (min-width: 761px) {
+  html.motion .departures details[data-reveal]:nth-of-type(odd):not(.is-revealed):not(.reveal-done) { transform: translate3d(-48px, 0, 0); }
+  html.motion .departures details[data-reveal]:nth-of-type(even):not(.is-revealed):not(.reveal-done) { transform: translate3d(48px, 0, 0); }
+}
+
+/* ---------- Projects: screenshots lift and tilt like the home cards ---------- */
+.project { perspective: 1100px; }
+.shots.lift-card {
+  transform: translate3d(0, var(--lift, 0px), 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .6s var(--motion-ease);
+}
+.shots.lift-card.is-tilting { transition: transform .25s var(--motion-ease); }
+@media (hover: hover) { .shots.lift-card:hover { --lift: -8px; } }
+
+/* ---------- Contact form ---------- */
+.fx-form .field { position: relative; padding-top: 22px; }
+.fx-form .field label {
+  position: absolute; left: 15px; top: 39px; margin: 0;
+  color: var(--ink-soft); pointer-events: none;
+  transition: transform .45s var(--motion-ease);
+}
+.fx-form .field:focus-within label,
+.fx-form .field.is-filled label { transform: translate3d(-15px, -39px, 0); color: var(--terra); }
+.fx-form textarea { display: block; }
+.fx-form input:focus, .fx-form textarea:focus { box-shadow: none; }
+.fx-form .field-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: var(--orange);
+  transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform .5s var(--motion-ease);
+  pointer-events: none;
+}
+.fx-form .field:focus-within .field-bar { transform: scaleX(1); }
+.fx-form .field.is-invalid input, .fx-form .field.is-invalid textarea { border-color: var(--terra); }
+.field-error { margin: 2px 0 0; font-size: 14px; color: var(--terra); }
+.field-error:empty { display: none; }
+.field-error:not(:empty) { animation: field-msg .45s var(--motion-ease); }
+@keyframes field-msg { from { opacity: 0; transform: translate3d(0, -4px, 0); } }
+.form-sent { display: none; color: var(--orange); justify-self: start; margin-top: 6px; }
+.form-sent svg { display: block; }
+.fx-form.is-sent .form-sent { display: block; animation: sent-in .8s var(--motion-ease); }
+@keyframes sent-in { from { opacity: 0; transform: scale(.6) rotate(-20deg); } }
+
 /* ---------- Printing and reduced motion: show everything, move nothing ---------- */
 @media print {
   .scroll-progress, .pt-panel, .menu-btn, .scroll-cue, .to-top, .cta-orbit { display: none !important; }
@@ -575,7 +653,7 @@ html.motion .cta h2.is-revealed .lt { transform: none; }
   html.pt-intro::before, html.pt-intro::after, html.pt-arrive::after, .pt-panel { display: none !important; }
   html.nav-js .nav, html.nav-js .nav::before, html.nav-js .nav::after, html.nav-js .brand, html.nav-js .brand img,
   html.nav-js .tabs, html.nav-js .nav .tabs a, .tabs a::after, .menu-btn span,
-  .hero .btn, .hero .btn::before, .btn-arrow, .photo-frame { transition: none !important; }
+  .btn.btn-fx, .btn.btn-fx::before, .btn-arrow, .photo-frame { transition: none !important; }
   .scroll-cue-line i { animation: none !important; }
   .glance, .glance::before, .glance::after, a.mission-line span::before { transition: none !important; }
   .glance:hover { transform: none !important; }
@@ -585,4 +663,6 @@ html.motion .cta h2.is-revealed .lt { transform: none; }
   .card-sheen { display: none; }
   .cta .btn::before, .foot-links a::after, .foot-contact a::after, .to-top, .to-top svg { transition: none !important; }
   .cta-orbit, .cta-orbit path { animation: none !important; transform: none !important; }
+  h2.rule.is-pulsing > .reveal-line, .field-error, .fx-form.is-sent .form-sent { animation: none !important; }
+  .tl-fill, .shots.lift-card, .fx-form .field label, .fx-form .field-bar { transition: none !important; }
 }
