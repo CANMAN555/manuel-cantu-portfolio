@@ -119,6 +119,9 @@
       root.classList.remove("nav-js", "menu-open");
     }
     try {
+      hero();
+    } catch (err) { /* the hero simply stays as written */ }
+    try {
       progressBar();
       addLines();
       if (animate) {
@@ -230,6 +233,135 @@
     window.addEventListener("pageshow", function (e) { if (e.persisted) { close(false); update(); } });
   }
 
+  // ---------- Home hero ----------
+  function hero() {
+    var section = document.querySelector(".hero");
+    if (!section) return;
+    var fine = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 901px)");
+
+    // Name: words become masks, letters rise from behind them.
+    var h1 = section.querySelector("h1");
+    if (h1 && animate) {
+      var text = h1.textContent;
+      var words = text.split(" ");
+      var holder = document.createElement("span");
+      holder.setAttribute("aria-hidden", "true");
+      var n = 0;
+      words.forEach(function (word, w) {
+        var mask = document.createElement("span");
+        mask.className = "hw";
+        for (var c = 0; c < word.length; c++) {
+          var ch = document.createElement("span");
+          ch.className = "hc";
+          ch.textContent = word.charAt(c);
+          ch.style.setProperty("--ci", n++);
+          mask.appendChild(ch);
+        }
+        holder.appendChild(mask);
+        if (w < words.length - 1) holder.appendChild(document.createTextNode(" "));
+      });
+      h1.setAttribute("aria-label", text);
+      h1.textContent = "";
+      h1.appendChild(holder);
+      h1.classList.add("is-split");
+
+      // The name goes first; the rest fades up in order once it's mostly in.
+      var order = [h1].concat(Array.prototype.slice.call(
+        section.querySelectorAll(".hero-text > .kicker, .hero-text > .tagline, .hero-text > .lede, .hero-text > .actions, .hero-text > .mission-line")));
+      order.forEach(function (el) { el.classList.add("hero-seq"); });
+      window.setTimeout(function () {
+        order.forEach(function (el, i) { reveal(el, i === 0 ? 0 : 420 + (i - 1) * 130); });
+      }, startDelay + 100);
+    }
+
+    // Headshot: wrap it so its terracotta ring can sit behind it and both can drift together.
+    var photo = section.querySelector(".glance-photo");
+    if (photo) {
+      var wrap = document.createElement("div");
+      wrap.className = "photo-wrap";
+      var frame = document.createElement("span");
+      frame.className = "photo-frame";
+      frame.setAttribute("aria-hidden", "true");
+      photo.parentNode.insertBefore(wrap, photo);
+      wrap.appendChild(photo);
+      wrap.appendChild(frame);
+
+      if (!reduce) {
+        // Parallax: across the scroll that takes the photo off screen, it trails the page by 40px in all.
+        var queued = false, shift = 0;
+        var drift = function () {
+          queued = false;
+          // Where the photo would sit without the drift, measured to the point it slides under the header.
+          var end = wrap.getBoundingClientRect().bottom - shift + window.scrollY - 70;
+          var p = end > 0 ? Math.min(1, Math.max(0, window.scrollY / end)) : 0;
+          shift = -16 + 40 * p;
+          wrap.style.transform = "translate3d(0," + shift.toFixed(1) + "px,0)";
+        };
+        var queue = function () { if (!queued) { queued = true; window.requestAnimationFrame(drift); } };
+        window.addEventListener("scroll", queue, { passive: true });
+        window.addEventListener("resize", queue);
+        drift();
+
+        // The ring follows the mouse a little, up to 12px, on desktop only.
+        var mx = 0, my = 0, moving = false;
+        window.addEventListener("mousemove", function (e) {
+          if (!fine.matches) return;
+          mx = (e.clientX / window.innerWidth - 0.5) * 2;
+          my = (e.clientY / window.innerHeight - 0.5) * 2;
+          if (!moving) {
+            moving = true;
+            window.requestAnimationFrame(function () {
+              moving = false;
+              frame.style.transform = "translate3d(" + (8 + mx * 12).toFixed(1) + "px," + (8 + my * 12).toFixed(1) + "px,0)";
+            });
+          }
+        }, { passive: true });
+      }
+    }
+
+    // Buttons: add the arrow, and on desktop a gentle pull toward the cursor (6px at most).
+    var ARROWS = {
+      right: '<svg width="16" height="10" viewBox="0 0 16 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M0 5h14.5M10.5 1l4 4-4 4"/></svg>',
+      down: '<svg width="10" height="14" viewBox="0 0 10 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 0v12.5M1 8.5l4 4 4-4"/></svg>'
+    };
+    var buttons = section.querySelectorAll(".hero-text .actions .btn");
+    for (var b = 0; b < buttons.length; b++) {
+      var btn = buttons[b];
+      var dir = btn.hasAttribute("download") ? "down" : "right";
+      var arrow = document.createElement("span");
+      arrow.className = "btn-arrow to-" + dir;
+      arrow.setAttribute("aria-hidden", "true");
+      arrow.innerHTML = ARROWS[dir];
+      btn.appendChild(arrow);
+      if (!reduce) magnet(btn);
+    }
+    function magnet(el) {
+      el.addEventListener("mousemove", function (e) {
+        if (!fine.matches) return;
+        var r = el.getBoundingClientRect();
+        var x = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+        var y = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+        el.style.setProperty("--mx", (Math.max(-1, Math.min(1, x)) * 6).toFixed(1) + "px");
+        el.style.setProperty("--my", (Math.max(-1, Math.min(1, y)) * 6).toFixed(1) + "px");
+      });
+      el.addEventListener("mouseleave", function () {
+        el.style.removeProperty("--mx");
+        el.style.removeProperty("--my");
+      });
+    }
+
+    // Scroll cue above the numbers.
+    var results = section.querySelector(".results");
+    if (results && results.parentNode) {
+      results.parentNode.classList.add("results-wrap");
+      var cue = document.createElement("div");
+      cue.className = "scroll-cue";
+      cue.setAttribute("aria-hidden", "true");
+      cue.innerHTML = '<span class="scroll-cue-label">Scroll</span><span class="scroll-cue-line"><i></i></span>';
+      results.parentNode.insertBefore(cue, results);
+    }
+  }
+
   // A 2px bar across the top that fills as the page scrolls.
   function progressBar() {
     var bar = document.createElement("div");
@@ -264,7 +396,7 @@
   }
 
   function observe() {
-    var items = document.querySelectorAll("[data-reveal]");
+    var items = document.querySelectorAll("[data-reveal]:not(.hero-seq)");
     var io = new IntersectionObserver(function (entries) {
       // Group what entered together by parent, so siblings follow one another in page order.
       var groups = [];

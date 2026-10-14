@@ -19,7 +19,13 @@
      .nav.is-scrolled past 40px: cream bar, soft shadow, hairline border, slightly smaller
      .nav.is-hidden   scrolling down: the header slides away; scrolling up brings it back
      html.menu-open   phone menu open: full-screen cream overlay, page locked behind it
-   Without JavaScript the header stays exactly as styles.css draws it. */
+   Without JavaScript the header stays exactly as styles.css draws it.
+
+   Home hero (after the header):
+     h1.is-split      the name, split into words (masks) and letters that rise into view, 30ms apart
+     .photo-wrap      holds the headshot and its offset terracotta ring; drifts slower than the page
+     .hero .btn       fill sweeps in from the left, arrow nudges, slight lift, gentle pull toward the cursor
+     .scroll-cue      thin line above the numbers with a dot that travels down it */
 
 :root {
   --motion-ease: cubic-bezier(.22, 1, .36, 1);
@@ -257,9 +263,84 @@ html.nav-js .nav.is-hidden { transform: translate3d(0, calc(-100% - 24px), 0); }
   html.menu-open, html.menu-open body { overflow: hidden; }
 }
 
+/* ---------- Home hero ---------- */
+/* The name: each word is a mask, each letter rises from below it. Padding gives the letters room
+   so nothing is cut off once they're in place. */
+.hero h1.is-split .hw {
+  display: inline-block; overflow: hidden; vertical-align: top;
+  padding: .12em .04em .14em; margin: -.12em -.04em -.14em;
+}
+.hero h1.is-split .hc { display: inline-block; }
+html.motion .hero h1.is-split[data-reveal]:not(.reveal-done) { opacity: 1; transform: none; }
+html.motion .hero h1.is-split .hc {
+  transform: translate3d(0, 120%, 0);
+  transition: transform 1s var(--motion-ease);
+  transition-delay: calc(var(--ci, 0) * 30ms);
+}
+html.motion .hero h1.is-split.is-revealed .hc { transform: none; }
+
+/* Headshot: wipe in from the left, with a thin terracotta ring set just behind it. */
+.photo-wrap { position: relative; isolation: isolate; width: max-content; margin: 0 0 18px; }
+.photo-wrap .glance-photo { margin: 0; }
+.photo-frame {
+  position: absolute; top: -6px; left: -6px; right: -6px; bottom: -6px; z-index: -1;
+  border: 1px solid var(--orange); border-radius: 50%;
+  transform: translate3d(8px, 8px, 0);
+  transition: transform 1.2s var(--motion-ease), opacity 1s var(--motion-ease) .5s;
+  pointer-events: none;
+}
+html.motion .photo-wrap .glance-photo:not(.is-revealed) + .photo-frame { opacity: 0; }
+html.motion .hero .glance-photo[data-reveal="image"].is-armed:not(.reveal-done) { clip-path: inset(0 100% 0 0); transform: scale(1.04); }
+html.motion .hero .glance-photo[data-reveal="image"].is-armed.is-revealed:not(.reveal-done) { clip-path: inset(0 0 0 0); transform: none; }
+
+/* Buttons: the fill is its own layer, so it can sweep in with a transform. */
+.hero .btn {
+  position: relative; isolation: isolate; overflow: hidden;
+  transform: translate3d(var(--mx, 0px), calc(var(--my, 0px) + var(--lift, 0px)), 0);
+  transition: transform .6s var(--motion-ease);
+}
+.hero .btn::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
+  transform: scaleX(0); transform-origin: 100% 50%;
+  transition: transform .6s var(--motion-ease);
+}
+.hero .btn.solid::before { background: var(--terra); }
+.hero .btn.line::before { background: rgba(187, 106, 44, .1); }
+.hero .btn.solid:hover, .hero .btn.solid:focus-visible { background: var(--orange); border-color: var(--terra); }
+.hero .btn.line:hover, .hero .btn.line:focus-visible { background: transparent; }
+.hero .btn:hover, .hero .btn:focus-visible { --lift: -2px; }
+.hero .btn:hover::before, .hero .btn:focus-visible::before { transform: scaleX(1); transform-origin: 0 50%; }
+.btn-arrow { display: inline-block; margin-left: 12px; line-height: 0; vertical-align: middle; transition: transform .6s var(--motion-ease); }
+.btn-arrow svg { display: block; }
+.hero .btn:hover .btn-arrow.to-right, .hero .btn:focus-visible .btn-arrow.to-right { transform: translate3d(4px, 0, 0); }
+.hero .btn:hover .btn-arrow.to-down, .hero .btn:focus-visible .btn-arrow.to-down { transform: translate3d(0, 4px, 0); }
+
+/* Scroll cue, centered in the space above the row of numbers. */
+.hero .results-wrap { position: relative; }
+.scroll-cue {
+  position: absolute; left: 50%; bottom: calc(100% + (clamp(56px, 7vw, 96px) - 50px) / 2);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  transform: translate3d(-50%, 0, 0);
+  pointer-events: none;
+}
+.scroll-cue-label { font-size: 10px; line-height: 1; letter-spacing: .3em; margin-right: -.3em; text-transform: uppercase; color: var(--ink-soft); }
+.scroll-cue-line { position: relative; width: 1px; height: 32px; background: var(--line); }
+.scroll-cue-line i {
+  position: absolute; top: -2px; left: -2px; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--orange);
+}
+html.motion .scroll-cue-line i { animation: cue-drop 2.4s var(--page-ease) infinite; }
+@keyframes cue-drop {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  20%  { opacity: 1; }
+  75%  { transform: translate3d(0, 30px, 0); opacity: 1; }
+  100% { transform: translate3d(0, 30px, 0); opacity: 0; }
+}
+
 /* ---------- Printing and reduced motion: show everything, move nothing ---------- */
 @media print {
-  .scroll-progress, .pt-panel, .menu-btn { display: none !important; }
+  .scroll-progress, .pt-panel, .menu-btn, .scroll-cue { display: none !important; }
+  .photo-wrap { transform: none !important; }
   html.nav-js .nav { position: static; transform: none; }
   html.nav-js main > :first-child { border-top: 0; }
   html::before, html::after { display: none !important; }
@@ -271,5 +352,7 @@ html.nav-js .nav.is-hidden { transform: translate3d(0, calc(-100% - 24px), 0); }
   }
   html.pt-intro::before, html.pt-intro::after, html.pt-arrive::after, .pt-panel { display: none !important; }
   html.nav-js .nav, html.nav-js .nav::before, html.nav-js .nav::after, html.nav-js .brand, html.nav-js .brand img,
-  html.nav-js .tabs, html.nav-js .nav .tabs a, .tabs a::after, .menu-btn span { transition: none !important; }
+  html.nav-js .tabs, html.nav-js .nav .tabs a, .tabs a::after, .menu-btn span,
+  .hero .btn, .hero .btn::before, .btn-arrow, .photo-frame { transition: none !important; }
+  .scroll-cue-line i { animation: none !important; }
 }
