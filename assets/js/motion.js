@@ -1,4 +1,4 @@
-// Motion for the portfolio: a scroll progress bar and reveal-on-scroll for anything marked data-reveal.
+// Motion for the portfolio: page transitions, a scroll progress bar and reveal-on-scroll for anything marked data-reveal.
 // Loaded in <head> so the "motion" class lands before the page paints. If anything goes wrong,
 // the class comes off again and the page shows as plain, fully visible content.
 (function () {
@@ -9,7 +9,102 @@
   var MAX_STEPS = 8;         // cap so long lists never wait too long
   var TIME = { base: 900, image: 1200, line: 1400 };
 
+  var INTRO_TIME = 900;      // first-visit cover, matches --page-intro-time
+  var WIPE_TIME = 600;       // panel up when leaving, matches --page-wipe-time
+  var LIFT_TIME = 700;       // cover off when arriving, matches --page-lift-time
+  var nativeTransitions = "CSSViewTransitionRule" in window;
+  var startDelay = 0;        // reveals wait until a cover has mostly lifted
+
   if (animate) root.classList.add("motion");
+
+  // sessionStorage can be blocked (private modes, strict settings); then transitions simply don't play.
+  function store(key, value) {
+    try {
+      if (value === undefined) return window.sessionStorage.getItem(key);
+      if (value === null) window.sessionStorage.removeItem(key);
+      else window.sessionStorage.setItem(key, value);
+    } catch (err) { return null; }
+  }
+
+  // ---------- Page transitions: decided here in <head>, so the cover is there on the first paint ----------
+  if (!reduce) {
+    var arrived = store("mc-pt-arrive");
+    store("mc-pt-arrive", null);
+    if (arrived && Date.now() - Number(arrived) < 4000) {
+      cover("pt-arrive", LIFT_TIME);
+      startDelay = 350;
+    } else if (!store("mc-intro-seen")) {
+      store("mc-intro-seen", "1");
+      if (store("mc-intro-seen")) {   // only play it if we could remember it, so it never repeats every page
+        cover("pt-intro", INTRO_TIME);
+        startDelay = 600;
+      }
+    }
+  }
+
+  function cover(name, time) {
+    root.classList.add(name);
+    window.setTimeout(function () { root.classList.remove(name); }, time + 80);
+  }
+
+  // A page arriving through the fallback panel shouldn't also run a native transition.
+  window.addEventListener("pagereveal", function (e) {
+    if (e.viewTransition && root.classList.contains("pt-arrive")) e.viewTransition.skipTransition();
+  });
+
+  // Back and forward can restore a page from memory exactly as it was left, panel and all. Clear it.
+  window.addEventListener("pageshow", function (e) {
+    if (!e.persisted) return;
+    leaving = false;
+    root.classList.remove("pt-intro", "pt-arrive");
+    var old = document.querySelectorAll(".pt-panel");
+    for (var i = 0; i < old.length; i++) old[i].parentNode.removeChild(old[i]);
+  });
+
+  // Fallback for browsers without View Transitions: wipe a panel up, then go.
+  // Keyboard Enter on a link fires this same click, so keyboard users get the same path.
+  var leaving = false;
+  if (!reduce && !nativeTransitions) document.addEventListener("click", leave);
+
+  function leave(e) {
+    if (leaving || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var link = e.target.closest ? e.target.closest("a[href]") : null;
+    if (!link) return;
+    if (link.target && link.target !== "_self") return;                 // new tab or window
+    if (link.hasAttribute("download")) return;                           // the resume PDF
+    if (link.protocol !== "http:" && link.protocol !== "https:") return; // mailto:, tel:
+    if (link.origin !== location.origin) return;                         // other sites
+    if (/\.pdf$/i.test(link.pathname)) return;
+    if (link.pathname === location.pathname && link.search === location.search && link.hash) return; // same-page anchor
+
+    e.preventDefault();
+    leaving = true;
+    var href = link.href;
+    var panel = document.createElement("div");
+    panel.className = "pt-panel";
+    panel.setAttribute("aria-hidden", "true");
+    document.body.appendChild(panel);
+    void panel.offsetWidth;
+    panel.classList.add("is-covering");
+
+    var gone = false;
+    function go() {
+      if (gone) return;
+      gone = true;
+      store("mc-pt-arrive", String(Date.now()));
+      window.location.href = href;
+      // If the browser stays on this page for any reason, lift the panel back off.
+      window.setTimeout(function () {
+        if (!document.body.contains(panel)) return;
+        leaving = false;
+        store("mc-pt-arrive", null);
+        panel.classList.remove("is-covering");
+        window.setTimeout(function () { if (panel.parentNode) panel.parentNode.removeChild(panel); }, WIPE_TIME + 50);
+      }, 4000);
+    }
+    panel.addEventListener("transitionend", go);
+    window.setTimeout(go, WIPE_TIME + 100);
+  }
 
   function ready(fn) {
     if (document.readyState !== "loading") fn();
@@ -20,7 +115,10 @@
     try {
       progressBar();
       addLines();
-      if (animate) observe();
+      if (animate) {
+        if (startDelay) window.setTimeout(observe, startDelay);
+        else observe();
+      }
     } catch (err) {
       root.classList.remove("motion");
     }
