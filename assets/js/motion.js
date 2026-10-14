@@ -125,13 +125,19 @@
       progressBar();
       addLines();
       if (animate) {
-        if (startDelay) window.setTimeout(observe, startDelay);
+        if (startDelay) window.setTimeout(safeObserve, startDelay);
         else observe();
       }
     } catch (err) {
       root.classList.remove("motion");
+      finishCounts();
     }
   });
+  function safeObserve() {
+    try { observe(); } catch (err) { root.classList.remove("motion"); finishCounts(); }
+  }
+  // Printing should never catch a number mid-count.
+  window.addEventListener("beforeprint", finishCounts);
 
   // ---------- Header: scroll states, hide on scroll down, phone menu, skip link ----------
   function header() {
@@ -395,7 +401,51 @@
     }
   }
 
+  // ---------- Number tiles: count up from 0 once, keeping "~", "+" and commas exactly as written ----------
+  var counters = [];
+  function prepCounts() {
+    var nums = document.querySelectorAll("[data-count]");
+    for (var i = 0; i < nums.length; i++) {
+      var el = nums[i];
+      var text = el.textContent;
+      var parts = text.match(/^(\D*)([\d,]+)(\D*)$/);
+      var target = Number(el.getAttribute("data-count"));
+      if (!parts || !isFinite(target)) continue;   // anything unexpected stays exactly as written
+      var c = { el: el, text: text, before: parts[1], after: parts[3], target: target, commas: parts[2].indexOf(",") > -1, done: false };
+      counters.push(c);
+      el.textContent = c.before + "0" + c.after;
+    }
+  }
+  function format(c, n) {
+    return c.before + (c.commas ? n.toLocaleString("en-US") : String(n)) + c.after;
+  }
+  function countUp(el, delay) {
+    var c = null;
+    for (var i = 0; i < counters.length; i++) if (counters[i].el === el) c = counters[i];
+    if (!c || c.done || c.running) return;
+    c.running = true;
+    var DURATION = 1800, start = 0;
+    function frame(now) {
+      if (c.done) return;
+      if (!start) start = now;
+      var t = Math.min(1, (now - start) / DURATION);
+      var eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);   // ease-out-expo
+      if (t === 1) { finish(c); return; }
+      c.el.textContent = format(c, Math.round(c.target * eased));
+      window.requestAnimationFrame(frame);
+    }
+    window.setTimeout(function () { window.requestAnimationFrame(frame); }, delay);
+  }
+  function finish(c) {
+    c.done = true;
+    c.el.textContent = c.text;   // always land on the original text, character for character
+  }
+  function finishCounts() {
+    counters.forEach(finish);
+  }
+
   function observe() {
+    prepCounts();
     var items = document.querySelectorAll("[data-reveal]:not(.hero-seq)");
     var io = new IntersectionObserver(function (entries) {
       // Group what entered together by parent, so siblings follow one another in page order.
@@ -431,6 +481,8 @@
     }
     if (delay) el.style.transitionDelay = delay + "ms";
     el.classList.add("is-revealed");
+    var num = el.querySelector("[data-count]");
+    if (num) countUp(num, delay + 150);
     window.setTimeout(function () {
       el.classList.add("reveal-done");
       el.style.transitionDelay = "";
